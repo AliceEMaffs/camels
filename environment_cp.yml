@@ -1,0 +1,26 @@
+name: allyenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9.15
+  - pip
+  - pandas
+  - numpy
+  - scipy
+  - astropy
+  - scikit-learn
+  - h5py
+  - hdf5plugin
+  - matplotlib
+  - tqdm
+  - future
+  - numba
+  - jupyter_contrib_nbextensions
+  - pip:
+    - nbgitpuller
+    - sphinx-gallery
+    - corner
+    - unyt
+    - Pylians
+    - CAMELS-library
