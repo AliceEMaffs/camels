@@ -1,4 +1,4 @@
-""" A module for creating and manipulating parametric stellar populations.
+"""A module for creating and manipulating parametric stellar populations.
 
 This is the parametric analog of particle.Stars. It not only computes and holds
 the SFZH grid but everything describing a parametric Galaxy's stellar
@@ -11,21 +11,20 @@ Example usage:
     stars.get_spectra_incident(grid)
     stars.plot_spectra()
 """
+
+import cmasher as cmr
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import integrate
-from unyt import unyt_quantity, unyt_array
-
-
-import matplotlib.pyplot as plt
-import cmasher as cmr
+from unyt import Hz, angstrom, erg, s, unyt_array, unyt_quantity
 
 from synthesizer import exceptions
 from synthesizer.components import StarsComponent
 from synthesizer.line import Line
-from synthesizer.stats import weighted_median, weighted_mean
-from synthesizer.plt import single_histxy
-from synthesizer.parametric.sf_hist import Common as SFHCommon
 from synthesizer.parametric.metal_dist import Common as ZDistCommon
+from synthesizer.parametric.sf_hist import Common as SFHCommon
+from synthesizer.plt import single_histxy
+from synthesizer.stats import weighted_mean, weighted_median
 from synthesizer.units import Quantity
 from synthesizer.utils import has_units
 
@@ -195,7 +194,7 @@ class Stars(StarsComponent):
             self.metal_dist_func = metal_dist  # a ZDist function
             self.metal_dist = None
             instant_metallicity = None
-        elif isinstance(metal_dist, (unyt_quantity, float)):
+        elif isinstance(metal_dist, (unyt_quantity, float, np.floating)):
             instant_metallicity = metal_dist  # an instantaneous SFH
             self.metal_dist_func = None
             self.metal_dist = None
@@ -321,6 +320,12 @@ class Stars(StarsComponent):
                 self.sf_hist[ia] = sf
                 min_age = max_age
 
+            # Normalise SFH array
+            self.sf_hist /= np.sum(self.sf_hist)
+
+            # Multiply by initial stellar mass
+            self.sf_hist *= self._initial_mass
+
         # Calculate SFH from function if necessary
         if self.metal_dist_func is not None and self.metal_dist is None:
             # Set up SFH array
@@ -341,6 +346,12 @@ class Stars(StarsComponent):
                 )[0]
                 self.metal_dist[imetal] = sf
                 min_metal = max_metal
+
+            # Normalise ZH array
+            self.metal_dist /= np.sum(self.metal_dist)
+
+            # Multiply by initial stellar mass
+            self.metal_dist *= self._initial_mass
 
         # Ensure that by this point we have an array for SFH and ZH
         if self.sf_hist is None or self.metal_dist is None:
@@ -423,7 +434,7 @@ class Stars(StarsComponent):
 
         return spectra
 
-    def generate_line(self, grid, line_id, fesc):
+    def generate_line(self, grid, line_id, fesc, **kwargs):
         """
         Calculate rest frame line luminosity and continuum from an SPS Grid.
 
@@ -434,9 +445,8 @@ class Stars(StarsComponent):
         Args:
             grid (Grid):
                 A Grid object.
-            line_id (list/str):
-                A list of line_ids or a str denoting a single line.
-                Doublets can be specified as a nested list or using a
+            line_id (str):
+                A str denoting a line. Doublets can be specified using a
                 comma (e.g. 'OIII4363,OIII4959').
             fesc (float):
                 The Lyman continuum escaped fraction, the fraction of
@@ -447,64 +457,49 @@ class Stars(StarsComponent):
                 An instance of Line contain this lines wavelenth, luminosity,
                 and continuum.
         """
+        # Ensure line_id is a string
+        if not isinstance(line_id, str):
+            raise exceptions.InconsistentArguments("line_id must be a string")
 
-        # If the line_id is a str denoting a single line
-        if isinstance(line_id, str):
-            # Get the grid information we need
-            grid_line = grid.lines[line_id]
-            wavelength = grid_line["wavelength"]
+        # Set up a list to hold each individual Line
+        lines = []
+
+        # Loop over the ids in this container
+        for line_id_ in line_id.split(","):
+            # Strip off any whitespace (can be left by split)
+            line_id_ = line_id_.strip()
+
+            # Get the line from the grid
+            grid_line = grid.lines[line_id_]
+
+            # Get this line's wavelength
+            # TODO: The units here should be extracted from the grid but aren't
+            # yet stored.
+            lam = grid.lines[line_id_]["wavelength"] * angstrom
 
             # Line luminosity erg/s
-            luminosity = (1 - fesc) * np.sum(
+            lum = (1 - fesc) * np.sum(
                 grid_line["luminosity"] * self.sfzh, axis=(0, 1)
             )
 
             # Continuum at line wavelength, erg/s/Hz
-            continuum = np.sum(grid_line["continuum"] * self.sfzh, axis=(0, 1))
+            cont = np.sum(grid_line["continuum"] * self.sfzh, axis=(0, 1))
 
-            # NOTE: this is currently incorrect and should be made of the
-            # separated nebular and stellar continuum emission
-            #
-            # proposed alternative
-            # stellar_continuum = np.sum(
-            #     grid_line['stellar_continuum'] * self.sfzh.sfzh,
-            #               axis=(0, 1))  # not affected by fesc
-            # nebular_continuum = np.sum(
-            #     (1-fesc)*grid_line['nebular_continuum'] * self.sfzh.sfzh,
-            #               axis=(0, 1))  # affected by fesc
-
-        # Else if the line is list or tuple denoting a doublet (or higher)
-        elif isinstance(line_id, (list, tuple)):
-            # Set up containers for the line information
-            luminosity = []
-            continuum = []
-            wavelength = []
-
-            # Loop over the ids in this container
-            for line_id_ in line_id:
-                grid_line = grid.lines[line_id_]
-
-                # Wavelength [\AA]
-                wavelength.append(grid_line["wavelength"])
-
-                # Line luminosity erg/s
-                luminosity.append(
-                    (1 - fesc)
-                    * np.sum(grid_line["luminosity"] * self.sfzh, axis=(0, 1))
+            # Append this lines values to the containers
+            lines.append(
+                Line(
+                    line_id=line_id_,
+                    wavelength=lam,
+                    luminosity=lum * erg / s,
+                    continuum=cont * erg / s / Hz,
                 )
-
-                # Continuum at line wavelength, erg/s/Hz
-                continuum.append(
-                    np.sum(grid_line["continuum"] * self.sfzh, axis=(0, 1))
-                )
-
-        else:
-            raise exceptions.InconsistentArguments(
-                "Unrecognised line_id! line_ids should contain strings"
-                " or lists/tuples for doublets"
             )
 
-        return Line(line_id, wavelength, luminosity, continuum)
+        # Don't init another line if there was only 1 in the first place
+        if len(lines) == 1:
+            return lines[0]
+        else:
+            return Line(*lines)
 
     def calculate_median_age(self):
         """
@@ -550,6 +545,30 @@ class Stars(StarsComponent):
         Add two Stars instances together.
 
         In simple terms this sums the SFZH grids of both Stars instances.
+
+        This will only work for Stars objects with the same SFZH grid axes.
+
+        Args:
+            other_stars (parametric.Stars)
+                The other instance of Stars to add to this one.
+        """
+
+        if np.all(self.log10ages == other_stars.log10ages) and np.all(
+            self.metallicities == other_stars.metallicities
+        ):
+            new_sfzh = self.sfzh + other_stars.sfzh
+
+        else:
+            raise exceptions.InconsistentAddition(
+                "SFZH must be the same shape"
+            )
+
+        return Stars(self.log10ages, self.metallicities, sfzh=new_sfzh)
+
+    def __radd__(self, other_stars):
+        """
+        Overloads "reflected" addition to allow two Stars instances to be added
+        together when in reverse order, i.e. second_stars + self.
 
         This will only work for Stars objects with the same SFZH grid axes.
 

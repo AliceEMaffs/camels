@@ -39,9 +39,10 @@ Example usage:
     # Make an RGB image
     img_coll.make_rgb_image(rgb_filters, weights)
 """
-import numpy as np
-import matplotlib.pyplot as plt
+
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+import numpy as np
 from unyt import unyt_quantity
 
 from synthesizer import exceptions
@@ -356,7 +357,7 @@ class ImageCollection:
 
         Returns:
             composite_img (ImageCollection)
-                A new Image object contain the composite image of self and
+                A new Image object containing the composite image of self and
                 other_img.
 
         Raises:
@@ -390,6 +391,7 @@ class ImageCollection:
 
         # Combine any common filters
         for f in filters:
+            composite_img.filter_codes.append(f)
             composite_img.imgs[f] = self.imgs[f] + other_img.imgs[f]
 
         return composite_img

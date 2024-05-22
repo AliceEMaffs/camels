@@ -4,21 +4,24 @@ Dust curves example
 
 Plot dust curves
 """
-import matplotlib.pyplot as plt
-import numpy as np
-from unyt import Angstrom
-
-from synthesizer.dust import attenuation
 
 import cmasher as cmr
+import matplotlib.pyplot as plt
+import numpy as np
+from synthesizer.dust import attenuation
+from unyt import Angstrom
 
 models = [
     "PowerLaw",
     "Calzetti2000",
-    "MW_N18",
+    "MWN18",
     "GrainsWD01",
     "GrainsWD01",
     "GrainsWD01",
+    "ParametricLI08",
+    "ParametricLI08",
+    "ParametricLI08",
+    "ParametricLI08",
 ]
 
 params = [
@@ -28,6 +31,10 @@ params = [
     {"model": "MW"},
     {"model": "SMC"},
     {"model": "LMC"},
+    {"model": "MW"},
+    {"model": "LMC"},
+    {"model": "SMC"},
+    {"model": "Calzetti"},
 ]
 
 colors = cmr.take_cmap_colors("cmr.guppy", len(models))

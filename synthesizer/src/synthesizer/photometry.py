@@ -1,4 +1,4 @@
-""" A module for working with photometry derived from an Sed.
+"""A module for working with photometry derived from an Sed.
 
 This module contains a single class definition which acts as a container
 for photometry data. It should never be directly instantiated, instead
@@ -6,10 +6,14 @@ internal methods that calculate photometry
 (e.g. Sed.get_photo_luminosities)
 return an instance of this class.
 """
-import re
-import numpy as np
-import matplotlib.pyplot as plt
 
+import re
+
+import matplotlib.pyplot as plt
+import numpy as np
+from unyt import unyt_array, unyt_quantity
+
+from synthesizer import exceptions
 from synthesizer.units import Quantity, default_units
 
 
@@ -69,6 +73,15 @@ class PhotometryCollection:
 
         # Get the photometry
         photometry = list(kwargs.values())
+
+        # Ensure we have units, if not something terrible has happened
+        if not isinstance(photometry[0], (unyt_quantity, unyt_array)):
+            raise exceptions.InconsistentArguments(
+                "Photometry must be passed as a dict of unyt_quantities."
+            )
+
+        # Convert it from a list of unyt_quantities to a unyt_array
+        photometry = unyt_array(photometry, units=photometry[0].units)
 
         # Get the dimensions of a flux for testing
         flux_dimensions = default_units["photo_fluxes"].units.dimensions
@@ -163,7 +176,7 @@ class PhotometryCollection:
         # Define the filter code column
         filters_col = [
             (
-                f"{f.filter_code} (\u03BB = {f.pivwv().value:.2e} "
+                f"{f.filter_code} (\u03bb = {f.pivwv().value:.2e} "
                 f"{str(f.lam.units)})"
             )
             for f in self.filters

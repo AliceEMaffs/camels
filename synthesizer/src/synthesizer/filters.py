@@ -22,17 +22,19 @@ transmission curves:
     )
 
 """
-import h5py
-import numpy as np
+
 import urllib.request
-import matplotlib.pyplot as plt
-from scipy import integrate
-from unyt import Angstrom, c, Hz, unyt_array, unyt_quantity
 from urllib.error import URLError
 
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import integrate
+from unyt import Angstrom, Hz, c, unyt_array, unyt_quantity
+
 import synthesizer.exceptions as exceptions
-from synthesizer.units import Quantity
 from synthesizer._version import __version__
+from synthesizer.units import Quantity
 
 
 def UVJ(new_lam=None):
@@ -211,6 +213,12 @@ class FilterCollection:
             # filters onto a universal wavelength grid.
             if self.lam is None:
                 self.resample_filters(fill_gaps=fill_gaps)
+
+        # If we were passed a wavelength array we need to resample on to
+        # it. NOTE: this can also be done for a loaded FilterCollection
+        # so we just do it here outside the logic
+        if new_lam is not None:
+            self.resample_filters(new_lam)
 
         # Calculate mean and pivot wavelengths for each filter
         self.mean_lams = self.calc_mean_lams()
@@ -637,14 +645,19 @@ class FilterCollection:
             for fc in np.array(self.filter_codes)[sinds]
         ]
 
+        # Include 10 zero transmission points either side of the wavelength
+        # arrays
+        for i, lam in enumerate(arrays):
+            for _ in range(10):
+                lam = np.insert(lam, 0, lam[0] - (lam[1] - lam[0]))
+                lam = np.append(lam, lam[-1] + (lam[-1] - lam[-2]))
+            arrays[i] = lam
+
         # Combine everything together in order
         new_lam = np.concatenate(arrays)
 
         # Remove any duplicate values
         new_lam = np.unique(new_lam)
-
-        # Get the smallest difference between adjacent values
-        diffs = np.diff(new_lam)
 
         # New remove any overlaps by iteratively removing negative differences
         # between adjacent elements
@@ -781,7 +794,6 @@ class FilterCollection:
             add_filter_label : bool
                 Are we labelling the filter? (NotYetImplemented)
         """
-
         # TODO: Add colours
 
         # Loop over the filters plotting their curves.
@@ -810,7 +822,6 @@ class FilterCollection:
             ax obj (matplotlib.axis)
                 The matplotlib axis object containg the plot.
         """
-
         # Set up figure
         if fig is None:
             fig = plt.figure(figsize=(5.0, 3.5))

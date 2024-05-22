@@ -23,30 +23,31 @@ Example usage:
     bar_no_units = foo._bar
 
 """
-from unyt import (
-    nJy,
-    erg,
-    s,
-    Hz,
-    Angstrom,
-    cm,
-    Mpc,
-    yr,
-    km,
-    Msun,
-    K,
-    deg,
-    unyt_quantity,
-    unyt_array,
-    dimensionless,
-)
 
+from unyt import (
+    Angstrom,
+    Hz,
+    K,
+    Mpc,
+    Msun,
+    cm,
+    deg,
+    dimensionless,
+    erg,
+    km,
+    nJy,
+    s,
+    unyt_array,
+    unyt_quantity,
+    yr,
+)
 
 # Define an importable dictionary with the default unit system
 default_units = {
     "lam": Angstrom,
     "obslam": Angstrom,
     "wavelength": Angstrom,
+    "vacuum_wavelength": Angstrom,
     "original_lam": Angstrom,
     "lam_min": Angstrom,
     "lam_max": Angstrom,
@@ -68,7 +69,7 @@ default_units = {
     "flux": erg / s / cm**2,
     "fnu": nJy,
     "flam": erg / s / Angstrom / cm**2,
-    "ew": Angstrom,
+    "equivalent_width": Angstrom,
     "coordinates": Mpc,
     "smoothing_lengths": Mpc,
     "softening_length": Mpc,
@@ -150,7 +151,6 @@ class UnitSingleton(type):
 
 
 class Units(metaclass=UnitSingleton):
-
     """
     Holds the definition of the internal unit system using unyt.
 
@@ -280,7 +280,9 @@ class Units(metaclass=UnitSingleton):
         # Wavelengths
         self.lam = Angstrom  # rest frame wavelengths
         self.obslam = Angstrom  # observer frame wavelengths
-        self.wavelength = Angstrom  # rest frame wavelengths alais
+        # vacuum rest frame wavelengths alias
+        self.vacuum_wavelength = Angstrom
+        self.wavelength = Angstrom  # rest frame wavelengths alias
         self.original_lam = Angstrom  # SVO filter wavelengths
         self.lam_min = Angstrom  # filter minimum wavelength
         self.lam_max = Angstrom  # filter maximum wavelength
@@ -316,7 +318,7 @@ class Units(metaclass=UnitSingleton):
         self.photo_fluxes = erg / s / cm**2 / Hz  # observer frame photometry
 
         # Equivalent width
-        self.ew = Angstrom
+        self.equivalent_width = Angstrom
 
         # Spatial quantities
         self.coordinates = Mpc

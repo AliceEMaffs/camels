@@ -1,5 +1,5 @@
-import numpy as np
 import h5py
+import numpy as np
 
 _dir = "."
 snap_name = "LH_1_snap_031.hdf5"
@@ -29,6 +29,7 @@ with h5py.File(f"{_dir}/{snap_name}", "r") as hf:
 
 with h5py.File(f"{_dir}/{fof_name}", "r") as hf:
     lens = hf["Subhalo/SubhaloLenType"][:]
+    pos = hf["Subhalo/SubhaloPos"][:]
 
 lens4 = np.append(0, np.cumsum(lens[: ignore_N + N, 4]))
 lens0 = np.append(0, np.cumsum(lens[: ignore_N + N, 0]))
@@ -86,4 +87,7 @@ with h5py.File("camels_subhalo.hdf5", "w") as hf:
     hf.require_group("Subhalo")
     hf.create_dataset(
         "Subhalo/SubhaloLenType", data=lens[ignore_N : (ignore_N + N), :]
+    )
+    hf.create_dataset(
+        "Subhalo/SubhaloPos", data=pos[ignore_N : (ignore_N + N), :]
     )

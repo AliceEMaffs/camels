@@ -75,30 +75,50 @@ classifiers = [  # Optional
   "Programming Language :: Python :: 3 :: Only",
 ]
 
-# Dependancies
+# Dependencies
 dependencies = [
-  "nbmake",
+  "setuptools",
   "astropy",
   "h5py",
-  "mpmath",
   "numpy >= 1.23",
   "packaging",
-  "pyerfa",
-  "pyparsing",
-  "PyYAML",
   "scipy",
   "unyt",
   "cmasher",
   "dust_extinction",
-  "nbsphinx",
   "matplotlib",
   "spectres",
+  "tqdm",
+  "requests",
 ]
 
-# Optional dependencies for specific use cases.
+# Optional dependencies for specific use cases
 [project.optional-dependencies]
-dev = ["black"]
-test = ["pytest"]
+# Development
+dev = [
+    "ruff>=0.3.0",
+]
+# Testing
+test = [
+    "nbmake",
+    "pytest",
+    "ruff>=0.3.0",
+    "mypy>=0.910",
+]
+# Documentation building
+docs = [
+    "nbmake",
+    "sphinx==7.1.1",
+    "pandoc",
+    "furo",
+    "sphinx_autodoc_typehints",
+    "ipython",
+    "sphinx_gallery",
+    "pillow",
+    "sphinx-toolbox",
+    "nbsphinx",
+]
+
 
 # Project urls
 [project.urls]
@@ -108,9 +128,8 @@ test = ["pytest"]
 "Documentation" = "https://flaresimulations.github.io/synthesizer/"
 
 # Entry points
-[project.scripts]  # Optional
-init_bc03="grids.grid_bc03:main"
-init_fsps="grids.grid_fsps:main"
+[project.scripts]
+synthesizer-download="synthesizer.download_data:download"
 
 # Package data
 [tool.setuptools.package-data]
@@ -128,3 +147,77 @@ build-backend = "setuptools.build_meta"
 
 # Make a version file at build time
 version_file = "src/synthesizer/_version.py"
+
+# Configure the linter and formatter
+[tool.ruff]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    ".DS_Store",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "*__init__.py"  # ignore all init files
+]
+
+# PEP-8 line length
+line-length = 79
+indent-width = 4
+
+
+# Assume Python 3.8 by default regardless
+target-version = "py38"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and pycodestyle (`E`)  codes by default.
+select = ["F", "E", "W"]
+ignore = [
+       "E402",  # "module level import not at top of file" (isolate C imports in case python alternatives exist)
+       "F811",  # "redefinition of unused name from line N" (breaks quantity objects)
+       ]
+
+# Sort imports alphabetically
+extend-select = ["I"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

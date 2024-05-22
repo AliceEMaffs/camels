@@ -3,7 +3,10 @@
 [![workflow](https://github.com/flaresimulations/synthesizer/actions/workflows/python-app.yml/badge.svg)](https://github.com/flaresimulations/synthesizer/actions)
 [![Documentation Status](https://github.com/flaresimulations/synthesizer/actions/workflows/publish_docs.yml/badge.svg)](https://flaresimulations.github.io/synthesizer/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/flaresimulations/synthesizer/blob/main/docs/CONTRIBUTING.md)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 
 Synthesizer is a python package for generating synthetic astrophysical spectra. It is intended to be modular, flexible and fast.
 
@@ -22,10 +25,14 @@ First clone the latest version of `synthesizer`
 
     git clone https://github.com/flaresimulations/synthesizer.git
 
-To install, enter the `synthesizer` directory and install with pip. On unix:
+To install, enter the `synthesizer` directory and install with pip.
 
     cd synthesizer
     pip install .
+    
+We also provide optional dependency sets for development (``dev``), testing (``test``), and building the documentation (``docs``) should you ever needed them. To install all dependancies simply run the following (or delete as appropriate to get a specific subset):
+
+    pip install .[dev,test,docs]
 
 Make sure you stay up to date with the latest versions through git:
 

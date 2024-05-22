@@ -1,4 +1,4 @@
-""" A module for common functionality in Parametric and Particle Galaxies
+"""A module for common functionality in Parametric and Particle Galaxies
 
 The class described in this module should never be directly instatiated. It
 only contains common attributes and methods to reduce boilerplate.
@@ -6,7 +6,7 @@ only contains common attributes and methods to reduce boilerplate.
 
 from synthesizer import exceptions
 from synthesizer.igm import Inoue14
-from synthesizer.sed import Sed, plot_spectra, plot_observed_spectra
+from synthesizer.sed import Sed, plot_observed_spectra, plot_spectra
 
 
 class BaseGalaxy:
@@ -29,7 +29,7 @@ class BaseGalaxy:
             The BlackHole/s object holding information about the black hole/s.
     """
 
-    def __init__(self, stars, gas, black_holes, redshift, **kwargs):
+    def __init__(self, stars, gas, black_holes, redshift, centre, **kwargs):
         """
         Instantiate the base Galaxy class.
 
@@ -56,6 +56,7 @@ class BaseGalaxy:
 
         # The redshift of the galaxy
         self.redshift = redshift
+        self.centre = centre
 
         if getattr(self, "galaxy_type") is None:
             raise Warning(

@@ -12,23 +12,24 @@ Example usage:
     sed.apply_attenutation(tau_v=0.7)
     sed.get_photo_fluxes(filters)
 """
+
 import re
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy import integrate
 from scipy.interpolate import interp1d
 from scipy.stats import linregress
-from scipy import integrate
 from spectres import spectres
-from unyt import c, h, erg, s, Hz, pc, angstrom, eV, unyt_array, cm
+from unyt import Hz, angstrom, c, cm, erg, eV, h, pc, s, unyt_array
 
 from synthesizer import exceptions
 from synthesizer.conversions import lnu_to_llam
 from synthesizer.dust.attenuation import PowerLaw
-from synthesizer.photometry import PhotometryCollection
-from synthesizer.utils import rebin_1d
-from synthesizer.units import Quantity
 from synthesizer.igm import Inoue14
-from synthesizer.utils import has_units
+from synthesizer.photometry import PhotometryCollection
+from synthesizer.units import Quantity
+from synthesizer.utils import has_units, rebin_1d, wavelength_to_rgba
 
 
 class Sed:
@@ -932,9 +933,7 @@ class Sed:
 
         # Finally, compute the flux SED and apply unit conversions to get
         # to nJy
-        self.fnu = (
-            self.lnu * (1.0 + z) / (4 * np.pi * luminosity_distance**2)
-        )
+        self.fnu = self.lnu * (1.0 + z) / (4 * np.pi * luminosity_distance**2)
 
         # If we are applying an IGM model apply it
         if igm:
@@ -1103,13 +1102,11 @@ class Sed:
             )
             # Use the continuum fit to define the continuum for all spectra
             continuum = (
-                (
-                    np.column_stack(
-                        continuum_fits[0]
-                        * feature_lam.to(self.lam.units).value[:, np.newaxis]
-                    )
-                    + continuum_fits[1][:, np.newaxis]
+                np.column_stack(
+                    continuum_fits[0]
+                    * feature_lam.to(self.lam.units).value[:, np.newaxis]
                 )
+                + continuum_fits[1][:, np.newaxis]
             ) * self.lnu.units
 
             # Define the continuum subtracted spectrum for all SEDs
@@ -1307,6 +1304,24 @@ class Sed:
             ionisation_wavelength.to(angstrom).value,
             limit=limit,
         )[0]
+
+    def plot_spectra(self, **kwargs):
+        """
+        A wrapper for synthesizer.sed.plot_spectra()
+        """
+        return plot_spectra(self, **kwargs)
+
+    def plot_observed_spectra(self, **kwargs):
+        """
+        A wrapper for synthesizer.sed.plot_observed_spectra()
+        """
+        return plot_observed_spectra(self, **kwargs)
+
+    def plot_spectra_as_rainbow(self, **kwargs):
+        """
+        A wrapper for synthesizer.sed.plot_spectra_as_rainbow()
+        """
+        return plot_spectra_as_rainbow(self, **kwargs)
 
 
 def plot_spectra(
@@ -1688,6 +1703,105 @@ def plot_observed_spectra(
 
     if show:
         plt.show()
+
+    return fig, ax
+
+
+def plot_spectra_as_rainbow(
+    sed,
+    figsize=(5, 0.5),
+    lam_min=3000,
+    lam_max=8000,
+    include_xaxis=True,
+    logged=False,
+    min_log_lnu=-2.0,
+    use_fnu=False,
+):
+    """
+    Create a plot of the spectrum as a rainbow.
+
+    Arguments:
+        sed (synthesizer.sed.Sed)
+            A synthesizer Sed object.
+        figsize (tuple)
+            Fig-size tuple (width, height).
+        lam_min (float)
+            The min wavelength to plot in Angstroms.
+        lam_max (float)
+            The max wavelength to plot in Angstroms.
+        include_xaxis (bool)
+            Flag whther to include x-axis ticks and label.
+        logged (bool)
+            Flag whether to use logged luminosity.
+        min_log_lnu (float)
+            Minium luminosity to plot relative to the maximum.
+        use_fnu (bool)
+            Whether to plot fluxes or luminosities. If True
+            fluxes are plotted, otherwise luminosities.
+
+    Returns:
+        fig (matplotlib.pyplot.figure)
+            The matplotlib figure object for the plot.
+        ax (matplotlib.axes)
+            The matplotlib axes object containing the plotted data.
+    """
+
+    # take sum of Seds if two dimensional
+    sed = sed.sum()
+
+    if use_fnu:
+        # define filter for spectra
+        wavelength_indices = np.logical_and(
+            sed._obslam < lam_max, sed._obslam > lam_min
+        )
+        lam = sed.obslam[wavelength_indices].to("nm").value
+        spectra = sed._fnu[wavelength_indices]
+    else:
+        # define filter for spectra
+        wavelength_indices = np.logical_and(
+            sed._lam < lam_max, sed._lam > lam_min
+        )
+        lam = sed.lam[wavelength_indices].to("nm").value
+        spectra = sed._lnu[wavelength_indices]
+
+    # normalise spectrum
+    spectra /= np.max(spectra)
+
+    # if logged rescale to between 0 and 1 using min_log_lnu
+    if logged:
+        spectra = (np.log10(spectra) - min_log_lnu) / (-min_log_lnu)
+        spectra[spectra < min_log_lnu] = 0
+
+    # initialise figure
+    fig = plt.figure(figsize=figsize)
+
+    # initialise axes
+    if include_xaxis:
+        ax = fig.add_axes((0, 0.3, 1, 1))
+        ax.set_xlabel(r"$\lambda/\AA$")
+    else:
+        ax = fig.add_axes((0, 0.0, 1, 1))
+        ax.set_xticks([])
+
+    # set background
+    ax.set_facecolor("black")
+
+    # always turn off y-ticks
+    ax.set_yticks([])
+
+    # get an array of colours
+    colours = np.array(
+        [
+            wavelength_to_rgba(lam_, alpha=spectra_)
+            for lam_, spectra_ in zip(lam, spectra)
+        ]
+    )
+
+    # expand dimensions to get an image array
+    im = np.expand_dims(colours, axis=0)
+
+    # show image
+    ax.imshow(im, aspect="auto", extent=(lam_min, lam_max, 0, 1))
 
     return fig, ax
 
