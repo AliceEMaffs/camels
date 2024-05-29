@@ -1,2 +1,4 @@
 Processing directory: LH_104
 Processing directory: LH_104
+Processing directory: LH_103
+Written out: /home/jovyan/camels/play/synth-play/LH/output/LH_103.txt
