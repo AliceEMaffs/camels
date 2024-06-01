@@ -1743,3 +1743,4 @@ Processing directory: LH_198
 Written out: /home/jovyan/camels/play/synth-play/LH/output/LH_198.txt
 Processing directory: LH_199
 Written out: /home/jovyan/camels/play/synth-play/LH/output/LH_199.txt
+Processing directory: LH_50
