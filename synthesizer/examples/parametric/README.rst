@@ -1,2 +1,0 @@
-Parametric galaxy examples
---------------------------
