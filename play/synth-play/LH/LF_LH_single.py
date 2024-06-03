@@ -106,7 +106,7 @@ output_dir = "/home/jovyan/camels/play/synth-play/LH/output/"
 
 # get gals
 print('loading in galaxies')
-LH_X = 'LH_104'
+LH_X = 'LH_50'
 dir_ = '/home/jovyan/Data/Sims/IllustrisTNG/LH/' + LH_X
 gals_074 = load_CAMELS_IllustrisTNG(
     dir_,
@@ -183,9 +183,8 @@ print('get incident spectra')
 # FAILS HERE
 spec_list = []
 # Lets work with z=0 so gals_025
-for gal in gals_074:
-    print('in for loop')
-    print('working on ', gal)
+for index, gal in enumerate(gals_074):
+    print("Gal: [", index , ']')
     # get_spectra_incident An Sed object containing the stellar spectra
     spec = gal.stars.get_spectra_incident(grid)
     print(spec)
@@ -196,13 +195,16 @@ for gal in gals_074:
 
 
 # In[ ]:
-
+# add filter anyway
+filt1 = Filter("top_hat/filter.1", lam_min=1400, lam_max=1600, new_lam=grid.lam)
+filt_lst = [filt1]
 
 # combine
 print('combining seds to list')
 seds = combine_list_of_seds(spec_list)
-
 seds.lnu # rest frame lumd
+
+# filter to top hat
 seds.get_photo_luminosities(filt_lst)
 seds.photo_luminosities.photo_luminosities
 abs_mag = lnu_to_absolute_mag(seds.photo_luminosities.photo_luminosities)
