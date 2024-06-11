@@ -1,2 +1,0 @@
-Particle galaxy examples
-------------------------
