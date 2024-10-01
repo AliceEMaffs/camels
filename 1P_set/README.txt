@@ -39,7 +39,7 @@ RadioFeedbackReiorientationFactor (AGN2) varied in 1P_p6_nX:
  1P_p6_n1 = 14.14
  1P_p6_0 = 20
  1P_p6_1 = 28.80
- 1P_p46_2 = 40
+ 1P_p6_2 = 40
 
 
 
