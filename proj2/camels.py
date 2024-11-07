@@ -227,7 +227,7 @@ class camels:
                 ]
 
 
-    def define_filter_collection(self, lam=None, filter_directory="data/"):
+    def define_filter_collection(self, lam=None, filter_directory="/disk/xray15/aem2/data/filters/"):
         fs = [f"SLOAN/SDSS.{f}" for f in ["u", "g", "r", "i", "z"]]
         fs += [f"Generic/Johnson.{f}" for f in ["U", "B", "V", "J"]]
         fs += [f"UKIRT/UKIDSS.{f}" for f in ["Y", "J", "H", "K"]]
