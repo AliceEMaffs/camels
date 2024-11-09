@@ -76,7 +76,7 @@ def get_photometry(
             photo[filt] = hf[
                 f"snap_{snap}/{sps}/photometry/luminosity/{spec_type}/{filt}"
             ][:]
-            photo[filt] *= unyt_quantity.from_string("1 erg/s/Hz")
+            photo[filt] *= unyt_quantity.from_string("1 erg/s/Hz") 
             photo[filt] = lnu_to_absolute_mag(photo[filt])
 
     return photo
