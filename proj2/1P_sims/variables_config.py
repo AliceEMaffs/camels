@@ -1,57 +1,6 @@
 # config.py
 
 import os
-# directory strucuture for plots:
-'''
-plots_dir/
-├── LFs/
-│   ├── intrinsic/
-│   │   ├── UV1500/
-│   │   │   ├── /z0.1
-│   │   │   ├── /z1.0
-│   │   │   ├── /z1.5
-│   │   │   ├── /z2.0
-│   │   │   └── parameter_variations/
-│   │   │   └── redshift_variations/
-│   │   ├── GALEX_FUV/
-│   │   │   ├── /z0.1
-│   │   │   ├── /z1.0
-│   │   │   ├── /z1.5
-│   │   │   ├── /z2.0
-│   │   │   ├── parameter_variations/
-│   │   │   └── redshift_variations/
-│   │   └── GALEX_NUV/
-│   │       ├── parameter_variations/
-│   │       └── redshift_variations/
-│   └── attenuated/
-│       ├── GALEX_FUV/
-│   │   │   ├── /z0.1
-│   │   │   ├── /z1.0
-│   │   │   ├── /z1.5
-│   │   │   ├── /z2.0
-│       │   ├── parameter_variations/
-│       │   └── redshift_variations/
-│       └── GALEX_NUV/
-│           ├── parameter_variations/
-│           └── redshift_variations/
-└── colours/
-    ├── intrinsic/
-    │   └── GALEX/
-│   │   │   ├── /z0.1
-│   │   │   ├── /z1.0
-│   │   │   ├── /z1.5
-│   │   │   ├── /z2.0
-    │       ├── parameter_variations/
-    │       └── redshift_variations/
-    └── attenuated/
-        └── GALEX/
-│   │   │   ├── /z0.1
-│   │   │   ├── /z1.0
-│   │   │   ├── /z1.5
-│   │   │   ├── /z2.0
-            ├── parameter_variations/
-            └── redshift_variations/
-'''
 
 # Base directories
 base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG/1P"
