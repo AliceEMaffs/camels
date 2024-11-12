@@ -54,8 +54,8 @@ plots_dir/
 '''
 
 # Base directories
-base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG/1P/"
-input_dir = f"{base_dir}/photometry"
+base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG/1P"
+input_dir = os.path.join(base_dir, "photometry")
 plots_dir = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/1P"
 param_info_file = "/disk/xray15/aem2/data/28pams/Info_IllustrisTNG_L25n256_28params.txt"
 
@@ -94,7 +94,7 @@ def colour_output_dir(base_dir):
     return colour_out_dir
 '''
 
-# Output directories with underscores
+# Output directories 
 lf_data_dir = {
     "attenuated": {
         "GALEX": f"{base_dir}/LFs/attenuated/GALEX"
@@ -105,13 +105,14 @@ lf_data_dir = {
     }
 }
 
-
 colour_data_dir = {
     "attenuated": {
-        "GALEX": f"{base_dir}/colours/attenuated/GALEX"
+        "GALEX": f"{base_dir}/colours/attenuated/GALEX",
+        "GALEX_FUV-NUV": f"{base_dir}/colours/attenuated/GALEX_FUV-NUV"
     },
     "intrinsic": {
-        "GALEX": f"{base_dir}/colours/intrinsic/GALEX"
+        "GALEX": f"{base_dir}/colours/intrinsic/GALEX",
+        "GALEX_FUV-NUV": f"{base_dir}/colours/intrinsic/GALEX_FUV-NUV"
     }
 }
 
@@ -136,3 +137,6 @@ filters = {
     "intrinsic": ["UV1500", "GALEX FUV", "GALEX NUV"],
     "attenuated": ["GALEX FUV", "GALEX NUV"]
 }
+
+# colour pairs we want to handle.
+colour_pairs = [("GALEX FUV", "GALEX NUV")]
