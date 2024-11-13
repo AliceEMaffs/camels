@@ -13,7 +13,6 @@ from ili.inference import InferenceRunner
 from ili.validation.metrics import PosteriorCoverage
 from sklearn.preprocessing import Normalizer
 import joblib
-
 from priors import initialise_priors
 from setup_params import get_theta_x
 from camels import camels
@@ -21,10 +20,10 @@ from camels import camels
 
 # IllustrisTNG_all_BC03_attenuated_12_12_086
 
-model = "Simba"  # "Swift-EAGLE" # "Astrid" # "IllustrisTNG" # "Simba"
+model = "IllustrisTNG"  # "Swift-EAGLE" # "Astrid" # "IllustrisTNG" # "Simba"
 spec_type = "attenuated"
 sps = "BC03"
-snap = ["086"]  #, "060", "044"]  # , "086", "060", "044"]
+snap = ["044"]  #, "060", "044"]  # , "086", "060", "044"]
 n_bins_lf = 12 
 n_bins_colour = 12
 cam = camels(model)
@@ -46,7 +45,7 @@ print("Device:", device)
 
 prior = initialise_priors(device=device, astro=True, dust=False)
 theta, x = get_theta_x(
-    photo_dir=f"/disk/xray15/aem2/data/28pams/IllTNG/photometry/{model}/",
+    photo_dir=f"/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/photometry/{model}/",
     spec_type=spec_type,
     model=model,
     snap=snap,

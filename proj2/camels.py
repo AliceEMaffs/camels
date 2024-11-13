@@ -15,6 +15,9 @@ from synthesizer.load_data.load_camels import (
     load_CAMELS_SwiftEAGLE_subfind,
 )
 
+# note from Alice:
+# in Chris' code, I think he loads in photometry directly from CAMELS sims, gets galaxies then gets photometry for flux/lums
+# I only have flux lums so can not use his get_x / get_theta versions that rely on the camels method.
 
 class camels:
     def __init__(self, model="IllustrisTNG", sim_set='LH', extended=False):
@@ -281,6 +284,7 @@ class camels:
 
         gals = self.sim_method(
             (
+                #"/disk/xray15/aem2/camels/CosmoAstroSeed_IllustrisTNG_L25n256_LH.txt"
                 f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/{_model}/"
                 f"L25n256/{self.sim_set}/{sim}"
             ),
