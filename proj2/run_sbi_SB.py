@@ -13,6 +13,7 @@ from ili.inference import InferenceRunner
 from ili.validation.metrics import PosteriorCoverage
 from sklearn.preprocessing import Normalizer
 import joblib
+
 from priors import initialise_priors
 from setup_params import get_theta_x
 from camels import camels
@@ -20,10 +21,10 @@ from camels import camels
 
 # IllustrisTNG_all_BC03_attenuated_12_12_086
 
-model = "IllustrisTNG"  # "Swift-EAGLE" # "Astrid" # "IllustrisTNG" # "Simba"
+model = "Simba"  # "Swift-EAGLE" # "Astrid" # "IllustrisTNG" # "Simba"
 spec_type = "attenuated"
 sps = "BC03"
-snap = ["044"]  #, "060", "044"]  # , "086", "060", "044"]
+snap = ["086"]  #, "060", "044"]  # , "086", "060", "044"]
 n_bins_lf = 12 
 n_bins_colour = 12
 cam = camels(model)
@@ -45,7 +46,7 @@ print("Device:", device)
 
 prior = initialise_priors(device=device, astro=True, dust=False)
 theta, x = get_theta_x(
-    photo_dir=f"/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/photometry/{model}/",
+    photo_dir=f"/mnt/ceph/users/clovell/CAMELS_photometry/{model}/",
     spec_type=spec_type,
     model=model,
     snap=snap,
@@ -72,12 +73,12 @@ x_all = torch.tensor(
     device=device, 
 )
 
-joblib.dump(norm, f'/disk/xray15/aem2/models/{name}_scaler.save')
+joblib.dump(norm, f'models/{name}_scaler.save')
 
 
 # test_mask = np.random.rand(1000) > 0.9
 # np.savetxt('../data/test_mask.txt', test_mask, fmt='%i')
-test_mask = np.loadtxt("/disk/xray15/aem2/data/test_mask.txt", dtype=bool)
+test_mask = np.loadtxt("../data/test_mask.txt", dtype=bool)
 
 hidden_features = 30
 num_transforms = 4

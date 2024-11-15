@@ -1,16 +1,14 @@
 import sys
-
-sys.path.insert(0, "../")
-
-import torch
-
-torch.set_default_dtype(torch.float32)
-
 import numpy as np
 import h5py
 from unyt import unyt_quantity
 from synthesizer.conversions import lnu_to_absolute_mag
-from camels import camels
+from camels_SB import camels
+import torch
+
+sys.path.insert(0, "../")
+torch.set_default_dtype(torch.float32)
+
 
 
 def calc_df(_x, volume, massBinLimits):
@@ -23,33 +21,6 @@ def calc_df(_x, volume, massBinLimits):
     )  # Poisson errors
 
     return phi, phi_sigma, hist
-
-
-def get_theta(
-    model="IllustrisTNG",
-    device="cuda",
-):
-    # dat = pd.read_csv('../data/dust_parameters.txt', delim_whitespace=True)
-    cam = camels(model=model)
-
-    theta = np.array(
-        [
-            cam.omegam,
-            cam.sigma8,
-            cam.A_SN1,
-            cam.A_AGN1,
-            cam.A_SN2,
-            cam.A_AGN2,
-            # dat.tau_ism,
-            # dat.tau_bc,
-            # dat.UV_slope,
-            # dat.OPT_NIR_slope,
-            # dat.FUV_slope,
-            # dat.bump,
-        ]
-    ).T
-
-    return torch.tensor(theta, dtype=torch.float32, device=device)
 
 
 def get_photometry(
@@ -80,42 +51,6 @@ def get_photometry(
             photo[filt] = lnu_to_absolute_mag(photo[filt])
 
     return photo
-
-def get_photometry_alice(group_num, spec_type, snap, filters):
-    """
-    Get photometry data from HDF5 file for a specific group and snapshot, adapted for SB28 structure
-    
-    Args:
-        group_num (int): SB28 group number (0-2047)
-        spec_type (str): Either "intrinsic" or "attenuated"
-        snap (str): Snapshot number (e.g., "044")
-        filters (list): List of filter names to extract
-    """
-    photo_file = "/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry/alice_galex.h5"
-    sim_name = f"SB28_{group_num}"
-    photo = {}
-    
-    try:
-        with h5py.File(photo_file, "r") as hf:
-            for filt in filters:
-                # Adapt path structure for our HDF5 file
-                dataset_path = f"{sim_name}/snap_{snap}/BC03/photometry/luminosity/{spec_type}/{filt}"
-                
-                if dataset_path in hf:
-                    photo[filt] = hf[dataset_path][:]
-                    photo[filt] *= unyt_quantity.from_string("1 erg/s/Hz")
-                    photo[filt] = lnu_to_absolute_mag(photo[filt])
-                else:
-                    print(f"Warning: Dataset {dataset_path} not found")
-                    return None
-                    
-    except Exception as e:
-        print(f"Error reading photometry for {sim_name}: {e}")
-        return None
-        
-    return photo
-
-
 
 def get_luminosity_function(
     photo,
@@ -152,6 +87,33 @@ def get_colour_distribution(
     color = (photo[filtA] - photo[filtB])[mask]
     colour_dist = np.histogram(color, binLimsColour, density=True)[0]
     return colour_dist, binLimsColour
+
+
+def get_theta(
+    model="IllustrisTNG",
+    device="cuda",
+):
+    # dat = pd.read_csv('../data/dust_parameters.txt', delim_whitespace=True)
+    cam = camels(model=model)
+
+    theta = np.array(
+        [
+            cam.omegam,
+            cam.sigma8,
+            cam.A_SN1,
+            cam.A_AGN1,
+            cam.A_SN2,
+            cam.A_AGN2,
+            # dat.tau_ism,
+            # dat.tau_bc,
+            # dat.UV_slope,
+            # dat.OPT_NIR_slope,
+            # dat.FUV_slope,
+            # dat.bump,
+        ]
+    ).T
+
+    return torch.tensor(theta, dtype=torch.float32, device=device)
 
 
 def get_x(
@@ -243,3 +205,5 @@ def get_theta_x(
 if __name__ == "__main__":
     theta, x = get_theta_x()
     print(theta.shape, x.shape)
+
+# SB STUFF
