@@ -66,19 +66,20 @@ colour_data_dir = {
 }
 
 # Parameters
-uvlf_limits = (-24, -16)
-uvlf_nbins = 11
+#uvlf_limits = (-24, -16)
+uvlf_limits = (-27, -16)
+uvlf_nbins = 15
 colour_limits = (-0.5, 3.5)
 colour_nbins = 20
 
-# Magnitude limits (DIS) from https://iopscience.iop.org/article/10.1086/520512/pdf
-NUV_mag_lim = 24.4
-FUV_mag_lim = 24.8
-
 # GALEX magnitude limits
 mag_limits = {
+    '''
     "GALEX_FUV": 24.8,  # From https://iopscience.iop.org/article/10.1086/520512/pdf
     "GALEX_NUV": 24.4
+    '''
+    "GALEX_FUV": 27,  # From https://iopscience.iop.org/article/10.1086/520512/pdf
+    "GALEX_NUV": 27
 }
 
 # Filter definitions
