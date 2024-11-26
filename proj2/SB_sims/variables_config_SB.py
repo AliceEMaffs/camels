@@ -66,10 +66,10 @@ colour_data_dir = {
 }
 
 # Parameters
-uvlf_limits = (-24, -16)
-uvlf_nbins = 11
+uvlf_limits = (-27, -16)
+n_bins_lf = 13# 12 bins!
 colour_limits = (-0.5, 3.5)
-colour_nbins = 20
+n_bins_colour = 13
 
 # GALEX magnitude limits
 mag_limits = {

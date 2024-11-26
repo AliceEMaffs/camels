@@ -3,9 +3,10 @@
 import os
 
 # Base directories
-base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG/1P"
+base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG"
 input_dir = os.path.join(base_dir, "photometry")
-plots_dir = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/1P"
+plots_dir_SB = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/SB"
+plots_dir_1P = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/1P"
 param_info_file = "/disk/xray15/aem2/data/28pams/Info_IllustrisTNG_L25n256_28params.txt"
 
 # Redshift mappings
@@ -46,31 +47,31 @@ def colour_output_dir(base_dir):
 # Output directories 
 lf_data_dir = {
     "attenuated": {
-        "GALEX": f"{base_dir}/LFs/attenuated/GALEX"
+        "GALEX": f"{base_dir}/1P/LFs/attenuated/GALEX"
     },
     "intrinsic": {
-        "UV1500": f"{base_dir}/LFs/intrinsic/UV1500",
-        "GALEX": f"{base_dir}/LFs/intrinsic/GALEX"
+        "UV1500": f"{base_dir}/1P/LFs/intrinsic/UV1500",
+        "GALEX": f"{base_dir}/1P/LFs/intrinsic/GALEX"
     }
 }
 
 colour_data_dir = {
     "attenuated": {
-        "GALEX": f"{base_dir}/colours/attenuated/GALEX",
-        "GALEX_FUV-NUV": f"{base_dir}/colours/attenuated/GALEX_FUV-NUV"
+        "GALEX": f"{base_dir}/1P/colours/attenuated/GALEX",
+        "GALEX_FUV-NUV": f"{base_dir}/1P/colours/attenuated/GALEX_FUV-NUV"
     },
     "intrinsic": {
-        "GALEX": f"{base_dir}/colours/intrinsic/GALEX",
-        "GALEX_FUV-NUV": f"{base_dir}/colours/intrinsic/GALEX_FUV-NUV"
+        "GALEX": f"{base_dir}/1P/colours/intrinsic/GALEX",
+        "GALEX_FUV-NUV": f"{base_dir}/1P/colours/intrinsic/GALEX_FUV-NUV"
     }
 }
 
 # Parameters
 #uvlf_limits = (-24, -16)
 uvlf_limits = (-27, -16)
-uvlf_nbins = 15
+n_bins_lf = 13# 12 bins!
 colour_limits = (-0.5, 3.5)
-colour_nbins = 20
+n_bins_colour = 13
 
 # GALEX magnitude limits
 mag_limits = {
@@ -78,7 +79,7 @@ mag_limits = {
     "GALEX_FUV": 24.8,  # From https://iopscience.iop.org/article/10.1086/520512/pdf
     "GALEX_NUV": 24.4
     '''
-    "GALEX_FUV": 27,  # From https://iopscience.iop.org/article/10.1086/520512/pdf
+    "GALEX_FUV": 27,  
     "GALEX_NUV": 27
 }
 
