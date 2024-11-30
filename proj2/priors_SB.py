@@ -1,5 +1,6 @@
 import torch
 import pandas as pd
+import numpy as np
 from torch.distributions import Uniform, TransformedDistribution, ExpTransform
 from sbi.utils.user_input_checks import process_prior
 
@@ -187,3 +188,46 @@ def initialise_priors_SB28(df, astro=True, dust=True, device="cuda"):
 
     return prior[0]
 
+
+def initialise_priors_SB28_splitGPU(df, astro=True, dust=True, device="cuda"): 
+    """
+    Initialize priors following SBI's requirements for distribution handling.
+    The key is to create all distributions properly before combining them.
+    """
+    print(f"Initializing priors for eventual use on {device}")
+    
+    def create_single_prior(min_val, max_val, log=False):
+        """Helper to create a single prior distribution."""
+        if log:
+            # For log-distributed parameters
+            base_dist = Uniform(
+                torch.log(torch.tensor([min_val], device=device)),
+                torch.log(torch.tensor([max_val], device=device))
+            )
+            return TransformedDistribution(base_dist, ExpTransform())
+        else:
+            # For linearly-distributed parameters
+            return Uniform(
+                torch.tensor([min_val], device=device),
+                torch.tensor([max_val], device=device)
+            )
+
+    # List to hold all individual priors
+    individual_priors = []
+
+    if astro:
+        for index, row in df.iterrows():
+            param_name = row['ParamName']
+            log_flag = int(row['LogFlag'])
+            min_val = float(row['MinVal'])
+            max_val = float(row['MaxVal'])
+            
+            print(f"Creating prior for {param_name}")
+            prior = create_single_prior(min_val, max_val, log=log_flag == 1)
+            individual_priors.append(prior)
+    
+    # Let SBI handle the combination of priors
+    print("Processing priors through SBI...")
+    processed_prior = process_prior(individual_priors)[0]
+    
+    return processed_prior
