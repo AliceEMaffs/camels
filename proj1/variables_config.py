@@ -1,5 +1,6 @@
 import os
 
+# In variables_config.py
 def get_config(dataset="CV", simulation="IllustrisTNG"):
     """
     Retrieve configuration settings dynamically based on the dataset and simulation.
@@ -7,7 +8,25 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
     # Define the base directory based on dataset and simulation choice
     base_dir = f"/home/jovyan/camels/proj1/{dataset}_set/{dataset}_outputs"
     input_dir = f"/home/jovyan/Data/Photometry/{simulation}/L25n256/{dataset}"
-    plots_dir = os.path.join(base_dir, "plots")
+    plots_dir = os.path.join(base_dir, "plots")    
+    
+    # LF data directories with correct structure
+    lf_data_dir = {
+        "intrinsic": {
+            "GALEX": f"{base_dir}/LFs/{simulation}/intrinsic/GALEX",
+            "UV1500": f"{base_dir}/LFs/{simulation}/intrinsic/UV1500"
+        },
+        "attenuated": {
+            "GALEX": f"{base_dir}/LFs/{simulation}/attenuated/GALEX",
+            "UV1500": f"{base_dir}/LFs/{simulation}/attenuated/UV1500"
+        }
+    }
+    
+    # Color data directories with correct structure
+    colour_data_dir = {
+        "intrinsic": f"{base_dir}/colours/{simulation}/intrinsic",
+        "attenuated": f"{base_dir}/colours/{simulation}/attenuated"
+    }
 
     # Define paths and limits for the simulation-specific configurations
     param_info_file = f"Data/Sims/{simulation}/{dataset}/CosmoAstroSeed_{simulation}_L25n256_{dataset}.txt"
@@ -17,30 +36,6 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
         '060': {'redshift': 1.05, 'label': 'z1.0'},
         '086': {'redshift': 0.10, 'label': 'z0.1'}
     }
-    
-    lf_data_dir = {
-        "intrinsic": {
-            "GALEX": f"{base_dir}/{simulation}/{dataset}/LFs/intrinsic/GALEX",
-            "UV1500": f"{base_dir}/{simulation}/{dataset}/LFs/intrinsic/UV1500"
-        },
-        "attenuated": {
-            "GALEX": f"{base_dir}/{simulation}/{dataset}/LFs/attenuated/GALEX",
-            "UV1500": f"{base_dir}/{simulation}/{dataset}/LFs/attenuated/UV1500"
-        }
-    }
-    colour_data_dir = {
-        "intrinsic": f"{base_dir}/{simulation}/{dataset}/colours/intrinsic",
-        "attenuated": f"{base_dir}/{simulation}/{dataset}/colours/attenuated"
-    }
-    
-    # Parameters
-    #uvlf_limits = (-24, -16)
-    uvlf_limits = (-27, -16)
-    n_bins_lf = 13# 12 bins!
-    colour_limits = (-0.5, 3.5)
-    n_bins_colour = 13
-    
-    colour_pairs = [("GALEX FUV", "GALEX NUV")]
 
     # GALEX magnitude limits
     mag_limits = {
@@ -57,6 +52,16 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
         "intrinsic": ["UV1500", "GALEX FUV", "GALEX NUV"],
         "attenuated": ["GALEX FUV", "GALEX NUV"]
     }
+
+    # Parameters
+    #uvlf_limits = (-24, -16)
+    uvlf_limits = (-27, -16)
+    n_bins_lf = 13# 12 bins!
+    colour_limits = (-0.5, 3.5)
+    n_bins_colour = 13
+    
+    colour_pairs = [("GALEX FUV", "GALEX NUV")]
+
     # Return the complete configuration dictionary
     return {
         "base_dir": base_dir,
