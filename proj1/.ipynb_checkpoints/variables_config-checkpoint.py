@@ -8,8 +8,16 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
     # Define the base directory based on dataset and simulation choice
     base_dir = f"/home/jovyan/camels/proj1/{dataset}_set/{dataset}_outputs"
     input_dir = f"/home/jovyan/Data/Photometry/{simulation}/L25n256/{dataset}"
-    plots_dir = os.path.join(base_dir, "plots")    
-    
+    plots_dir = {
+        "UVLFs": {
+            "intrinsic": os.path.join(base_dir, "plots", simulation, "UVLFs", "intrinsic"),
+            "attenuated": os.path.join(base_dir, "plots", simulation, "UVLFs", "attenuated")
+        },
+        "colours": {
+            "intrinsic": os.path.join(base_dir, "plots", simulation, "colours", "intrinsic"),
+            "attenuated": os.path.join(base_dir, "plots", simulation, "colours", "attenuated")
+        }
+    }    
     # LF data directories with correct structure
     lf_data_dir = {
         "intrinsic": {
