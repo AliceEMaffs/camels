@@ -63,7 +63,7 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
 
     # Parameters
     #uvlf_limits = (-24, -16)
-    uvlf_limits = (-27, -16)
+    uvlf_limits = (-27, -14)
     n_bins_lf = 13# 12 bins!
     colour_limits = (-0.5, 3.5)
     n_bins_colour = 13
