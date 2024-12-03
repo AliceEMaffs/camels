@@ -53,7 +53,6 @@ def get_photometry(
             photo[filt] = lnu_to_absolute_mag(photo[filt])
 
     return photo
-    
 
 def get_luminosity_function(
     photo,
