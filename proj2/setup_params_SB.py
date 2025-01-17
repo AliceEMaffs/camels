@@ -29,7 +29,7 @@ def get_photometry(
     snap="090",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/photometry"),
+    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry"),
     filters=[
         "SLOAN/SDSS.u",
         "SLOAN/SDSS.g",
@@ -234,33 +234,48 @@ def get_theta_SB(model="IllustrisTNG", device="cuda"):
     
     return torch.tensor(theta, dtype=torch.float32, device=device)
     
-
-def get_x_SB( # get colours or LFs
-    # x.shape= (no. sims, no. bins*features) 
-
-        # 2 GALEX filters (FUV, NUV)
-        # Each filter gets n_bins_lf (12) bins
-        # 2 filters * 12 bins = 24 features
-        # 1 color (FUV-NUV)
-        # Gets n_bins_colour (9) bins
-        # 1 color * 9 bins = 9 features
-
-    # Total: 24 + 9 = 33 features per simulation with colours & UVLF but with just UVLF its 24
-     
+def get_x_SB(
     spec_type="attenuated",
     snap="044",
     sps="BC03",
-    luminosity_functions=True, # leave these as is, just overwrite in script if dont want both.
-    colours=True, 
+    luminosity_functions=True,
+    colours=True,
     model="IllustrisTNG",
     photo_dir="/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry",
-    n_bins_lf=13, # 12 edges
+    n_bins_lf=13,
     n_bins_colour=13,
+    uvlf_limits=(-24, -14),  # Default values from your config
+    colour_limits=(-0.5, 3.5),  # Default values from your config
+    filters=["GALEX FUV", "GALEX NUV"]
 ):
+    """
+    Get features (luminosity functions and/or colors) for SB28 simulations.
+    
+    Args:
+        spec_type (str): Spectral type ("attenuated" by default)
+        snap (str): Snapshot number
+        sps (str): Stellar population synthesis model
+        luminosity_functions (bool): Whether to compute luminosity functions
+        colours (bool): Whether to compute color distributions
+        model (str): Simulation model name
+        photo_dir (str): Directory containing photometry data
+        n_bins_lf (int): Number of bins for luminosity functions
+        n_bins_colour (int): Number of bins for color distribution
+        uvlf_limits (tuple): (low, high) magnitude limits for UVLF
+        colour_limits (tuple): (low, high) limits for color distribution
+        filters (list): List of filters to use
+    
+    Returns:
+        list: Features for each simulation
+    """
     if isinstance(snap, str):
         snap = [snap]
 
     x = [[] for _ in range(2048)]  # For SB28 simulations
+    
+    # Unpack limits
+    uvlf_low, uvlf_high = uvlf_limits
+    colour_low, colour_high = colour_limits
 
     for SB28_ in range(2048):
         try:
@@ -272,24 +287,26 @@ def get_x_SB( # get colours or LFs
                     sps=sps,
                     model=model,
                     photo_dir=photo_dir,
+                    filters=filters
                 )
 
                 if luminosity_functions:
-                    for filt, lo_lim, hi_lim in zip(
-                        ["GALEX FUV", "GALEX NUV"],# (-24, -16)
-                        [-27, -27], # 24/25
-                        [-17, -17], # initial test. 
-                    ):
+                    # Create limits for each filter
+                    filter_limits = [(filt, uvlf_low, uvlf_high) for filt in filters]
+                    
+                    for filt, lo_lim, hi_lim in filter_limits:
                         phi = get_luminosity_function(
                             photo, filt, lo_lim, hi_lim, n_bins=n_bins_lf
                         )[0]
                         x[SB28_].append(phi)
 
-                if colours:
-                    binLimsColour = np.linspace(-0.5, 3.5, n_bins_colour)
-                    color = photo["GALEX FUV"] - photo["GALEX NUV"]
+                if colours and len(filters) >= 2:
+                    binLimsColour = np.linspace(colour_low, colour_high, n_bins_colour)
+                    # Assuming we're always using the first two filters for color
+                    color = photo[filters[0]] - photo[filters[1]]
                     color_dist = np.histogram(color, binLimsColour, density=True)[0]
                     x[SB28_].append(color_dist)
+
         except Exception as e:
             print(f"Error processing simulation {SB28_}: {e}")
             x[SB28_] = None
@@ -298,6 +315,72 @@ def get_x_SB( # get colours or LFs
     x = [xi for xi in x if xi is not None]
     
     return x
+
+# def get_x_SB( # get colours or LFs
+#     # x.shape= (no. sims, no. bins*features) 
+
+#         # 2 GALEX filters (FUV, NUV)
+#         # Each filter gets n_bins_lf (12) bins
+#         # 2 filters * 12 bins = 24 features
+#         # 1 color (FUV-NUV)
+#         # Gets n_bins_colour (9) bins
+#         # 1 color * 9 bins = 9 features
+
+#     # Total: 24 + 9 = 33 features per simulation with colours & UVLF but with just UVLF its 24
+     
+#     spec_type="attenuated",
+#     snap="044",
+#     sps="BC03",
+#     luminosity_functions=True, # leave these as is, just overwrite in script if dont want both.
+#     colours=True, 
+#     model="IllustrisTNG",
+#     photo_dir="/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry",
+#     n_bins_lf=13, # 12 edges
+#     n_bins_colour=13,
+#     mag_limits=
+#     uvlf_limits
+# ):
+#     if isinstance(snap, str):
+#         snap = [snap]
+
+#     x = [[] for _ in range(2048)]  # For SB28 simulations
+
+#     for SB28_ in range(2048):
+#         try:
+#             for snp in snap:
+#                 photo = get_photometry_SB(
+#                     sim_name=f"SB28_{SB28_}",
+#                     spec_type=spec_type,
+#                     snap=snp,
+#                     sps=sps,
+#                     model=model,
+#                     photo_dir=photo_dir,
+#                 )
+
+#                 if luminosity_functions:
+#                     for filt, lo_lim, hi_lim in zip(
+#                         ["GALEX FUV", "GALEX NUV"],# (-24, -16)
+#                         [-24, -24], <  uvlf_limits  low,low # 24/25
+#                         [-16, -16], <uvlf_limits , high  high# initial test. 
+#                     ):
+#                         phi = get_luminosity_function(
+#                             photo, filt, lo_lim, hi_lim, n_bins=n_bins_lf
+#                         )[0]
+#                         x[SB28_].append(phi)
+
+#                 if colours:
+#                     binLimsColour = np.linspace(-0.5, 3.5, n_bins_colour)
+#                     color = photo["GALEX FUV"] - photo["GALEX NUV"]
+#                     color_dist = np.histogram(color, binLimsColour, density=True)[0]
+#                     x[SB28_].append(color_dist)
+#         except Exception as e:
+#             print(f"Error processing simulation {SB28_}: {e}")
+#             x[SB28_] = None
+
+#     # Remove any failed simulations
+#     x = [xi for xi in x if xi is not None]
+    
+#     return x
 
 
 def get_theta_x_SB(

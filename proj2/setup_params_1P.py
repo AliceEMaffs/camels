@@ -24,14 +24,13 @@ def calc_df(_x, volume, massBinLimits):
 
     return phi, phi_sigma, hist
 
-
 def get_photometry(
     sim_name="LH_0",
     spec_type="attenuated",
     snap="090",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/photometry"),
+    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/1P/photometry"),
     filters=[
         "SLOAN/SDSS.u",
         "SLOAN/SDSS.g",
@@ -72,7 +71,6 @@ def get_luminosity_function(
     phi = np.log10(phi)
     return phi, phi_sigma, hist, binLimits
 
-
 def get_colour_distribution(
     photo,
     filtA,
@@ -90,9 +88,8 @@ def get_colour_distribution(
     colour_dist = np.histogram(color, binLimsColour, density=True)[0]
     return colour_dist, binLimsColour
 
-
 #############
-# processing data to Txts
+# processing data to txts
 #############
 
 # safe name for passing in and using for naming paths/directories without underscores.  see more below (get_colour_dir_name)
@@ -115,7 +112,6 @@ def get_safe_name(name, filter_system_only=False):
         return safe_name.split('_')[0]
     
     return safe_name
-
 
 def get_colour_dir_name(band1, band2):
     """
@@ -141,7 +137,6 @@ def get_colour_dir_name(band1, band2):
     else:
         return f"{get_safe_name(band1)}-{get_safe_name(band2)}"
     
-
 def get_magnitude_mask(photo, filters, mag_limits=None):
     """
     Create a magnitude mask based on provided limits.
@@ -167,8 +162,97 @@ def get_magnitude_mask(photo, filters, mag_limits=None):
             
     return combined_mask
 
-def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_dir, colour_limits, colour_nbins, colour_data_dir, category, bands, colour_pairs=None, mag_limits=None):
-    """Process data for any combination of bands and color pairs"""
+# def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_dir, colour_limits, colour_nbins, colour_data_dir, category, bands, colour_pairs=None, mag_limits=None):
+#     """Process data for any combination of bands and color pairs"""
+#     photo_files = [f for f in os.listdir(input_dir) if f.endswith('_photometry.hdf5')]
+    
+#     for filename in photo_files:
+#         sim_name = filename.replace('IllustrisTNG_', '').replace('_photometry.hdf5', '')
+#         print(f"\nProcessing {sim_name}")
+        
+#         for snap, redshift_info in redshift_values.items():
+#             print(f"  Processing z={redshift_info['label']}")
+            
+#             # Get photometry
+#             photo = get_photometry(
+#                 sim_name=sim_name,
+#                 spec_type="intrinsic" if category == "intrinsic" else "attenuated",
+#                 snap=snap,
+#                 sps="BC03",
+#                 model="IllustrisTNG",
+#                 filters=bands,
+#                 photo_dir=input_dir
+#             )
+            
+#             # Process UVLFs
+#             for band in bands:
+#                 phi, phi_sigma, hist, bin_lims = get_luminosity_function(
+#                     photo,
+#                     band,
+#                     *uvlf_limits,
+#                     n_bins=uvlf_nbins
+#                 )
+                
+#                 # Save UVLF
+#                 bin_centers = 0.5 * (bin_lims[1:] + bin_lims[:-1])
+#                 uvlf_df = pd.DataFrame({
+#                     'magnitude': bin_centers,
+#                     'phi': phi,
+#                     'phi_sigma': phi_sigma,
+#                     'hist': hist
+#                 })
+                
+#                 # Get filter system and create output directory
+#                 filter_system = get_safe_name(band, filter_system_only=True)
+#                 spec_type = "intrinsic" if category == "intrinsic" else "attenuated"
+                
+#                 output_dir = os.path.join(lf_data_dir[category][filter_system], get_safe_name(redshift_info['label']))
+#                 os.makedirs(output_dir, exist_ok=True)
+                
+#                 # Use get_safe_name for the band in the filename
+#                 uvlf_filename = f"UVLF_{sim_name}_{get_safe_name(band)}_{get_safe_name(redshift_info['label'])}_{spec_type}.txt"
+#                 uvlf_df.to_csv(os.path.join(output_dir, uvlf_filename), 
+#                              index=False, sep='\t')
+            
+#             # Process colours if pairs provided
+#             if colour_pairs:
+#                 for band1, band2 in colour_pairs:
+#                     if band1 in photo and band2 in photo:
+#                         # Get mask using magnitude limits
+#                         mask = get_magnitude_mask(photo, [band1, band2], mag_limits)
+                        
+#                         # Calculate color distribution using original function
+#                         colour_dist, bin_lims = get_colour_distribution(
+#                             photo,
+#                             band1,
+#                             band2,
+#                             *colour_limits,  # Unpack the min/max limits from config
+#                             n_bins=colour_nbins,
+#                             mask=mask
+#                         )
+                        
+#                         bin_centers = 0.5 * (bin_lims[1:] + bin_lims[:-1])
+#                         colour_df = pd.DataFrame({
+#                             'colour': bin_centers,
+#                             'distribution': colour_dist
+#                         })
+
+#                         # Get filter system and create output directory
+#                         filter_system = get_colour_dir_name(band1, band2)
+#                         output_dir = os.path.join(colour_data_dir[category][filter_system], get_safe_name(redshift_info['label']))
+#                         os.makedirs(output_dir, exist_ok=True)
+                        
+#                         # Create standardized filename using get_safe_name for band names
+#                         colour_filename = f"Colour_{sim_name}_{filter_system}_{get_safe_name(redshift_info['label'])}_{spec_type}.txt"
+#                         colour_df.to_csv(os.path.join(output_dir, colour_filename),
+#                                        index=False, sep='\t')
+
+#             print(f"    Completed processing for z={redshift_info['label']}")
+
+def process_data(input_dir, redshift_values, uvlf_limits, n_bins_lf, lf_data_dir, 
+                colour_limits, n_bins_colour, colour_data_dir, category, bands, 
+                colour_pairs=None, mag_limits=None):
+    """Process data for any combination of bands and color pairs."""
     photo_files = [f for f in os.listdir(input_dir) if f.endswith('_photometry.hdf5')]
     
     for filename in photo_files:
@@ -195,7 +279,7 @@ def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_di
                     photo,
                     band,
                     *uvlf_limits,
-                    n_bins=uvlf_nbins
+                    n_bins=n_bins_lf
                 )
                 
                 # Save UVLF
@@ -226,13 +310,13 @@ def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_di
                         # Get mask using magnitude limits
                         mask = get_magnitude_mask(photo, [band1, band2], mag_limits)
                         
-                        # Calculate color distribution using original function
+                        # Calculate color distribution
                         colour_dist, bin_lims = get_colour_distribution(
                             photo,
                             band1,
                             band2,
-                            *colour_limits,  # Unpack the min/max limits from config
-                            n_bins=colour_nbins,
+                            *colour_limits,
+                            n_bins=n_bins_colour,
                             mask=mask
                         )
                         
@@ -247,7 +331,7 @@ def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_di
                         output_dir = os.path.join(colour_data_dir[category][filter_system], get_safe_name(redshift_info['label']))
                         os.makedirs(output_dir, exist_ok=True)
                         
-                        # Create standardized filename using get_safe_name for band names
+                        # Create standardized filename
                         colour_filename = f"Colour_{sim_name}_{filter_system}_{get_safe_name(redshift_info['label'])}_{spec_type}.txt"
                         colour_df.to_csv(os.path.join(output_dir, colour_filename),
                                        index=False, sep='\t')
@@ -261,7 +345,7 @@ def process_data(input_dir, redshift_values, uvlf_limits, uvlf_nbins, lf_data_di
 def plot_uvlf(x_array, n_bins=13):
     """Plot UVLF for a specific simulation"""
     # Create magnitude bins
-    mag_bins = np.linspace(-27, -17, n_bins)
+    mag_bins = np.linspace(-26, -14, n_bins)
     mag_centers = (mag_bins[:-1] + mag_bins[1:]) / 2
     
     # Calculate number of bins for LF data
@@ -276,8 +360,8 @@ def plot_uvlf(x_array, n_bins=13):
     ax.plot(mag_centers, fuv_bins, 'o-', label='FUV', color='blue', alpha=0.7)
     ax.plot(mag_centers, nuv_bins, 's-', label='NUV', color='red', alpha=0.7)
     
-    ax.set_xlabel('M$_{UV}$')
-    ax.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]')
+    ax.set_xlabel('Magnitude (AB)', fontsize=12)
+    ax.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=12)
     ax.legend()
     ax.grid(True)
     
@@ -334,7 +418,6 @@ def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 an
     print(f"Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
     
     return fig
-
 
 def calculate_parameter_values(param_info):
     """
@@ -407,7 +490,7 @@ def plot_parameter_variations_uvlf(param_num, param_info, redshift, band_type, b
 
     if plt.gca().has_data():
         plt.xlabel('Magnitude (AB)', fontsize=12)
-        plt.ylabel('Number Density (Mpc$^{-3}$ mag$^{-1}$)', fontsize=12)
+        plt.ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=12)
         plt.xlim(*uvlf_limits)
         plt.grid(True, which='both', linestyle='--', alpha=0.6)
         plt.title(f'{param_info["Description"]} - {param_info["ParamName"]} (p{param_num})\n'
@@ -419,7 +502,7 @@ def plot_parameter_variations_uvlf(param_num, param_info, redshift, band_type, b
         # Updated path to match new structure
         output_path = os.path.join(plots_dir_1P, 'LFs', band_type, get_safe_name(band), 
                                  'parameter_variations',
-                                 f'UVLF_p{param_num}_{param_info["ParamName"]}_z{redshift["label"]}.pdf')
+                                 f'UVLF_p{param_num}_{param_info["ParamName"]}_z{redshift["label"]}.png')
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         print(f"Saving UVLF plot: {output_path}")
         plt.savefig(output_path, bbox_inches='tight', dpi=300)
@@ -474,11 +557,9 @@ def plot_parameter_variations_colour(param_num, param_info, redshift, band_type,
         
         os.makedirs(output_dir, exist_ok=True)
         output_path = os.path.join(output_dir, 
-                                  f'Colour_p{param_num}_{param_info["ParamName"]}_z{redshift["label"]}.pdf')
+                                  f'Colour_p{param_num}_{param_info["ParamName"]}_z{redshift["label"]}.png')
         plt.savefig(output_path, bbox_inches='tight', dpi=300)
         plt.close()
-
-
 
 def process_all_parameters(param_info_file, redshift_values, filters):
     """Process all parameter variation plots."""
@@ -502,7 +583,6 @@ def process_all_parameters(param_info_file, redshift_values, filters):
                 # Process colours
                 print(f"Processing colour variations for z={redshift['redshift']}")
                 plot_parameter_variations_colour(param_num, param_info, redshift, band_type, colour_pairs)
-
 
 def process_lfs_all(redshift_values, filters, param_info_file, lf_data_dir, plots_dir_1P,uvlf_limits):
     """Process UVLF parameter grids for all redshifts."""
@@ -574,7 +654,7 @@ def plot_single_measurement(uvlf_file, color_file, band_info=None, color_info=No
                     fmt='o-', color='blue', capsize=5)
         
         ax1.set_xlabel('Absolute Magnitude (AB)', fontsize=12)
-        ax1.set_ylabel('Number Density (Mpc$^{-3}$ mag$^{-1}$)', fontsize=12)
+        ax1.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=12)
         if band_info:
             band, z, cat = band_info
             ax1.set_title(f'{band} UVLF\n(z={z}, {cat})', fontsize=14)
@@ -603,13 +683,11 @@ def plot_single_measurement(uvlf_file, color_file, band_info=None, color_info=No
     
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
-        plt.savefig(os.path.join(output_dir, 'single_measurement.pdf'), 
+        plt.savefig(os.path.join(output_dir, 'single_measurement.png'), 
                    bbox_inches='tight', dpi=300)
     else:
         plt.show()
-    
     plt.close()
-
 
 def create_redshift_evolution_plot(param_num, param_info, redshift_values, band_type, band, lf_data_dir, plots_dir_1P, uvlf_limits):
     """Create plot showing redshift evolution for each variation of a parameter."""
@@ -653,7 +731,7 @@ def create_redshift_evolution_plot(param_num, param_info, redshift_values, band_
         ax.set_title(f'{param_info["ParamName"]} = {param_values[variation]:.3g}', 
                     fontsize=12)
         ax.set_xlabel('Magnitude (AB)', fontsize=12)
-        ax.set_ylabel('Φ (Mpc$^{-3}$ mag$^{-1}$)', fontsize=12)
+        ax.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=12)
         ax.tick_params(axis='both', which='major', labelsize=10)
         ax.legend(fontsize=10, title='Redshift', title_fontsize=10)
     
@@ -663,7 +741,7 @@ def create_redshift_evolution_plot(param_num, param_info, redshift_values, band_
     output_dir = os.path.join(plots_dir_1P, 'LFs', band_type, get_safe_name(band), 'redshift_variations')
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, 
-                              f'UVLF_redshift_evolution_p{param_num}_{get_safe_name(param_info["ParamName"])}.pdf')
+                              f'UVLF_redshift_evolution_p{param_num}_{get_safe_name(param_info["ParamName"])}.png')
     print('Saving to', output_path)
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
     plt.close()
@@ -709,7 +787,7 @@ def create_parameter_variation_plot(param_num, param_info, redshift_values, lf_d
         ax.grid(True, which='both', linestyle='--', alpha=0.3)
         ax.set_title(f'z = {redshift["redshift"]}', fontsize=12)
         ax.set_xlabel('Magnitude (AB)', fontsize=12)
-        ax.set_ylabel('Φ (Mpc$^{-3}$ mag$^{-1}$)', fontsize=12)
+        ax.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=12)
         ax.tick_params(axis='both', which='major', labelsize=10)
         ax.legend(fontsize=9, title='Parameter Values', title_fontsize=10)
     
@@ -719,7 +797,7 @@ def create_parameter_variation_plot(param_num, param_info, redshift_values, lf_d
     output_dir = os.path.join(plots_dir_1P, 'LFs', band_type, get_safe_name(band), 'parameter_variations')
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, 
-                              f'UVLF_parameter_variation_p{param_num}_{get_safe_name(param_info["ParamName"])}.pdf')
+                              f'UVLF_parameter_variation_p{param_num}_{get_safe_name(param_info["ParamName"])}.png')
     print('Saving to', output_path)
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
     plt.close()
@@ -790,6 +868,8 @@ def create_colour_all(param_info_file, redshift, band_type, band_or_colour_pairs
     # Customize subplots
     for ax in axes.flatten():
         ax.set_xlim(*colour_limits)
+        ax.set_xlabel('FUV - NUV [mag]', fontsize=8)
+        ax.set_ylabel('Normalized Distribution', fontsize=8)
         ax.grid(True, which='both', linestyle='--', alpha=0.3)
         ax.tick_params(axis='both', which='major', labelsize=6)
     
@@ -817,23 +897,26 @@ def create_colour_all(param_info_file, redshift, band_type, band_or_colour_pairs
     
     # Adjust subplot spacing to make room for color bar
     plt.subplots_adjust(top=0.93, bottom=0.05, hspace=0.3, wspace=0.2)
-    
+
     # Save plot
     plot_dir = os.path.join(plots_dir_1P, 'colours', band_type, filter_system, get_safe_name(redshift['label']))
     os.makedirs(plot_dir, exist_ok=True)
-    plt.savefig(os.path.join(plot_dir, f"All_colours_{filter_system}_{get_safe_name(redshift['label'])}_{band_type}.pdf"), bbox_inches='tight', dpi=300)
-    plt.close()
 
+    # Include bin limits in filename
+    plt.savefig(os.path.join(plot_dir, 
+                            f"All_colours_{filter_system}_{get_safe_name(redshift['label'])}_{band_type}_{float(colour_limits[0])}_{float(colour_limits[1])}.png"), 
+                bbox_inches='tight', dpi=300)
+    plt.close()
 
 def create_lf_all(param_info_file, redshift, band_type, band_or_colour_pairs, lf_data_dir, plots_dir_1P, uvlf_limits):
     """Create grid plot of all parameters for a given redshift for LFs."""
-    print("\n=== DETAILED DEBUG INFO ===")
-    print(f"Parameters received:")
-    print(f"param_info_file: {param_info_file}")
-    print(f"redshift: {redshift}")
-    print(f"band_type: {band_type}")
-    print(f"band_or_colour_pairs: {band_or_colour_pairs}")
-    print(f"uvlf_limits: {uvlf_limits}")
+    # print("\n=== DETAILED DEBUG INFO ===")
+    # print(f"Parameters received:")
+    # print(f"param_info_file: {param_info_file}")
+    # print(f"redshift: {redshift}")
+    # print(f"band_type: {band_type}")
+    # print(f"band_or_colour_pairs: {band_or_colour_pairs}")
+    # print(f"uvlf_limits: {uvlf_limits}")
     
     # Verify param_info_file exists
     if not os.path.exists(param_info_file):
@@ -845,10 +928,10 @@ def create_lf_all(param_info_file, redshift, band_type, band_or_colour_pairs, lf
     band_name = get_safe_name(band_or_colour_pairs)
     data_dir = os.path.join(lf_data_dir[band_type][filter_system], get_safe_name(redshift['label']))
     
-    print(f"\nDirectory structure:")
-    print(f"filter_system: {filter_system}")
-    print(f"band_name: {band_name}")
-    print(f"data_dir: {data_dir}")
+    # print(f"\nDirectory structure:")
+    # print(f"filter_system: {filter_system}")
+    # print(f"band_name: {band_name}")
+    # print(f"data_dir: {data_dir}")
     
     if not os.path.exists(data_dir):
         print(f"ERROR: Data directory does not exist: {data_dir}")
@@ -911,13 +994,26 @@ def create_lf_all(param_info_file, redshift, band_type, band_or_colour_pairs, lf
         if panel_plots > 0:
             ax.set_xlim(*uvlf_limits)
             ax.set_ylim(-6, -2)
+            ax.set_xlabel('M$_{UV}$ [mag]', fontsize=8)
+            ax.set_ylabel('log$_{10}$ φ [Mpc$^{-3}$ mag$^{-1}$]', fontsize=8)
             ax.grid(True, which='both', linestyle='--', alpha=0.3)
             ax.set_title(f'p{param_num}: {param_info["ParamName"]}', fontsize=8)
             ax.tick_params(axis='both', which='major', labelsize=6)
             
             if param_num == 1:
                 ax.legend(fontsize=6, title='Values', title_fontsize=6)
-    
+                
+    # Add color bar
+    cmap = mpl.colors.ListedColormap(colours)
+    norm = mpl.colors.BoundaryNorm([-2.5, -1.5, -0.5, 0.5, 1.5], cmap.N)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar_ax = fig.add_axes([0.375, 0.95, 0.25, 0.01])  # change position and size here
+    cbar = fig.colorbar(sm, cax=cbar_ax, orientation='horizontal', ticks=[-2, -1, 0, 1])
+    cbar.ax.set_xticklabels(['Min', '', '0', 'Max'])
+    cbar.ax.tick_params(labelsize=12)
+    cbar.set_label('Param values', fontsize=14)
+
     print(f"\nFinal summary:")
     print(f"Total plots made: {plots_made}")
     
@@ -930,8 +1026,9 @@ def create_lf_all(param_info_file, redshift, band_type, band_or_colour_pairs, lf
     plot_dir = os.path.join(plots_dir_1P, 'LFs', band_type, band_name, get_safe_name(redshift['label']))
     os.makedirs(plot_dir, exist_ok=True)
     
+    # Include bin limits in filename
     output_file = os.path.join(plot_dir, 
-                              f"All_UVLF_{band_name}_{get_safe_name(redshift['label'])}_{band_type}.pdf")
+                              f"All_UVLF_{band_name}_{get_safe_name(redshift['label'])}_{band_type}_{int(uvlf_limits[0])}_{int(uvlf_limits[1])}.png")
     print(f"\nSaving plot to: {output_file}")
     plt.savefig(output_file, bbox_inches='tight', dpi=300)
     plt.close()

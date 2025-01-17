@@ -67,8 +67,9 @@ colour_data_dir = {
 }
 
 # Parameters
-#uvlf_limits = (-24, -16)
-uvlf_limits = (-27, -16)
+# uvlf_limits = (-27, -17) # i tihnk the original parameter search was ran on these:
+uvlf_limits = (-25, -14) # for redshift 2.0 we have more objects in fainter bins so want to capture that info.
+# for 
 n_bins_lf = 13# 12 bins!
 colour_limits = (-0.5, 3.5)
 n_bins_colour = 13
