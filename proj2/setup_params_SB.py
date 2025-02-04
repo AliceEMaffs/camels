@@ -202,6 +202,7 @@ def get_theta_SB(model="IllustrisTNG", device="cuda"):
     # theta is the number of simulation parameters so 28
     cam = camels(model=model, sim_set='SB28')
     theta = np.array([
+        # commented out the others just to test first 
         cam.params['Omega0'].values,              # Omega0
         cam.params['sigma8'].values,              # sigma8
         cam.params['WindEnergyIn1e51erg'].values, # Wind Energy in 1e51 erg
@@ -233,7 +234,7 @@ def get_theta_SB(model="IllustrisTNG", device="cuda"):
     ]).T
     
     return torch.tensor(theta, dtype=torch.float32, device=device)
-    
+
 def get_x_SB(
     spec_type="attenuated",
     snap="044",
@@ -397,6 +398,7 @@ def get_theta_x_SB(
     # Convert x list to proper array format
     x_array = np.array([np.hstack(_x) for _x in x])
     return theta, x_array
+
 
 ''' use:
 if __name__ == "__main__":
