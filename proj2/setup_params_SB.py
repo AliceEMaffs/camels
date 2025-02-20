@@ -209,28 +209,28 @@ def get_theta_SB(model="IllustrisTNG", device="cuda"):
         cam.params['RadioFeedbackFactor'].values,  # Radio Feedback Factor
         cam.params['VariableWindVelFactor'].values, # Variable Wind Velocity Factor
         cam.params['RadioFeedbackReiorientationFactor'].values, # Radio Feedback Reorientation Factor
-        cam.params['OmegaBaryon'].values,         # Omega Baryon
-        cam.params['HubbleParam'].values,         # Hubble Parameter
-        cam.params['n_s'].values,                 # n_s
-        cam.params['MaxSfrTimescale'].values,     # Max SFR Timescale
-        cam.params['FactorForSofterEQS'].values,  # Factor for Softer EQS
-        cam.params['IMFslope'].values,            # IMF slope
-        cam.params['SNII_MinMass_Msun'].values,   # SNII Minimum Mass (Msun)
-        cam.params['ThermalWindFraction'].values, # Thermal Wind Fraction
-        cam.params['VariableWindSpecMomentum'].values, # Variable Wind Specific Momentum
-        cam.params['WindFreeTravelDensFac'].values, # Wind Free Travel Density Factor
-        cam.params['MinWindVel'].values,          # Minimum Wind Velocity
-        cam.params['WindEnergyReductionFactor'].values, # Wind Energy Reduction Factor
-        cam.params['WindEnergyReductionMetallicity'].values, # Wind Energy Reduction Metallicity
-        cam.params['WindEnergyReductionExponent'].values, # Wind Energy Reduction Exponent
-        cam.params['WindDumpFactor'].values,      # Wind Dump Factor
-        cam.params['SeedBlackHoleMass'].values,   # Seed Black Hole Mass
-        cam.params['BlackHoleAccretionFactor'].values, # Black Hole Accretion Factor
-        cam.params['BlackHoleEddingtonFactor'].values, # Black Hole Eddington Factor
-        cam.params['BlackHoleFeedbackFactor'].values, # Black Hole Feedback Factor
-        cam.params['BlackHoleRadiativeEfficiency'].values, # Black Hole Radiative Efficiency
-        cam.params['QuasarThreshold'].values,     # Quasar Threshold
-        cam.params['QuasarThresholdPower'].values # Quasar Threshold Power
+        # cam.params['OmegaBaryon'].values,         # Omega Baryon
+        # cam.params['HubbleParam'].values,         # Hubble Parameter
+        # cam.params['n_s'].values,                 # n_s
+        # cam.params['MaxSfrTimescale'].values,     # Max SFR Timescale
+        # cam.params['FactorForSofterEQS'].values,  # Factor for Softer EQS
+        # cam.params['IMFslope'].values,            # IMF slope
+        # cam.params['SNII_MinMass_Msun'].values,   # SNII Minimum Mass (Msun)
+        # cam.params['ThermalWindFraction'].values, # Thermal Wind Fraction
+        # cam.params['VariableWindSpecMomentum'].values, # Variable Wind Specific Momentum
+        # cam.params['WindFreeTravelDensFac'].values, # Wind Free Travel Density Factor
+        # cam.params['MinWindVel'].values,          # Minimum Wind Velocity
+        # cam.params['WindEnergyReductionFactor'].values, # Wind Energy Reduction Factor
+        # cam.params['WindEnergyReductionMetallicity'].values, # Wind Energy Reduction Metallicity
+        # cam.params['WindEnergyReductionExponent'].values, # Wind Energy Reduction Exponent
+        # cam.params['WindDumpFactor'].values,      # Wind Dump Factor
+        # cam.params['SeedBlackHoleMass'].values,   # Seed Black Hole Mass
+        # cam.params['BlackHoleAccretionFactor'].values, # Black Hole Accretion Factor
+        # cam.params['BlackHoleEddingtonFactor'].values, # Black Hole Eddington Factor
+        # cam.params['BlackHoleFeedbackFactor'].values, # Black Hole Feedback Factor
+        # cam.params['BlackHoleRadiativeEfficiency'].values, # Black Hole Radiative Efficiency
+        # cam.params['QuasarThreshold'].values,     # Quasar Threshold
+        # cam.params['QuasarThresholdPower'].values # Quasar Threshold Power
     ]).T
     
     return torch.tensor(theta, dtype=torch.float32, device=device)
