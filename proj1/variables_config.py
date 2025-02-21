@@ -1,4 +1,10 @@
 import os
+# Parameters
+#uvlf_limits = (-24, -16)
+uvlf_limits = (-25, -14)
+n_bins_lf = 13# 12 bins!
+colour_limits = (-0.5, 3.5)
+n_bins_colour = 13
 
 # In variables_config.py
 def get_config(dataset="CV", simulation="IllustrisTNG"):
@@ -60,13 +66,6 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
         "intrinsic": ["UV1500", "GALEX FUV", "GALEX NUV"],
         "attenuated": ["GALEX FUV", "GALEX NUV"]
     }
-
-    # Parameters
-    #uvlf_limits = (-24, -16)
-    uvlf_limits = (-25, -14)
-    n_bins_lf = 13# 12 bins!
-    colour_limits = (-0.5, 3.5)
-    n_bins_colour = 13
     
     colour_pairs = [("GALEX FUV", "GALEX NUV")]
 
