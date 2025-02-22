@@ -1,0 +1,24 @@
+{
+    "model_config": {
+        "engine": "NPE",
+        "model": "nsf",
+        "hidden_features": null,
+        "num_transforms": null,
+        "ensemble_size": 3
+    },
+    "training_args": {
+        "training_batch_size": 32,
+        "learning_rate": 0.0002,
+        "stop_after_epochs": 5,
+        "max_num_epochs": 12,
+        "clip_max_norm": 0.8,
+        "validation_fraction": 0.12,
+        "use_combined_loss": true,
+        "show_train_summary": true,
+        "dataloader_kwargs": {
+            "num_workers": 0,
+            "pin_memory": false
+        }
+    },
+    "timestamp": "2025-02-21_18-09-28"
+}
