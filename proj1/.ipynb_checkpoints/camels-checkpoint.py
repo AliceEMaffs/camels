@@ -7,7 +7,8 @@ from unyt import Myr
 from synthesizer.emission_models import EmissionModel, IncidentEmission
 from synthesizer.filters import Filter, FilterCollection
 from synthesizer.emission_models.attenuation import ParametricLi08
-from synthesizer.filters import Filter, FilterCollection
+# from synthesizer.filters import Filter, FilterCollection
+from synthesizer.instruments import Filter, FilterCollection
 from synthesizer.load_data.load_camels import (
     load_CAMELS_Simba,
     load_CAMELS_IllustrisTNG,
@@ -16,34 +17,100 @@ from synthesizer.load_data.load_camels import (
 )
 
 
-class camels:
+# class camels:
+#     def __init__(self, model="IllustrisTNG", sim_set='LH', extended=False, dust=False):
+#         self.model = model
+#         self.h = 0.6711
+#         self.sim_set = sim_set
+#         self.extended = extended
+#         self.dust = dust
 
-    def __init__(self, model="IllustrisTNG", sim_set='SB28', extended=False):
+#         if self.sim_set == 'SB28':
+#             if self.model not in ['IllustrisTNG']:
+#                 raise ValueError(f'SB28 set not available for {self.model} model')
+
+#         if ((self.sim_set in ['1P']) & self.extended):
+#             if self.model not in ['IllustrisTNG', 'Simba']:
+#                 raise ValueError(f'Extended 1P parameter set not available for {self.model} model')
+
+#         if self.model == "Simba":
+#             self.fname = (
+#                 "/disk/xray15/aem2/camels/proj1/"
+#                 f"{self.sim_set}/CosmoAstroSeed_SIMBA_L25n256_{self.sim_set}.txt"
+#             )
+#             self.sim_method = load_CAMELS_Simba
+#             self.cosmology = Planck15
+#         elif self.model == "Astrid":
+#             self.fname = (
+#                 "/disk/xray15/aem2/camels/proj1/"
+#                 f"{self.sim_set}/CosmoAstroSeed_Astrid_L25n256_{self.sim_set}.txt"
+#             )
+#             self.sim_method = load_CAMELS_Astrid
+#             self.cosmology = Planck18
+#         elif self.model == "IllustrisTNG":
+#             self.fname = (
+#                 "/disk/xray15/aem2/camels/proj1/"
+#                 f"{self.sim_set}/CosmoAstroSeed_IllustrisTNG_L25n256_{self.sim_set}.txt"
+#             )
+#             self.sim_method = load_CAMELS_IllustrisTNG
+#             self.cosmology = Planck18
+#         elif self.model == "Swift-EAGLE":
+#             self.fname = (
+#                 "/mnt/home/clovell/code/camels_observational_catalogues/"
+#                 "CosmoAstroSeed_SwiftEAGLE_L25n256_LH.txt"
+#             )
+#             self.sim_method = load_CAMELS_SwiftEAGLE_subfind
+#             self.cosmology = Planck18
+#         elif self.model == "Arbitrary":
+#             self.fname = None
+#             self.sim_method = None
+#             self.cosmology = None
+#         else:
+#             raise ValueError("`sim` not recognised")
+
+
+class camels:
+    def __init__(self, model="IllustrisTNG", sim_set='LH', extended=False, dust=False):
         self.model = model
         self.h = 0.6711
         self.sim_set = sim_set
         self.extended = extended
+        self.dust = dust
 
-        # Handle IllustrisTNG cases
-        if self.model == "IllustrisTNG":
-            if self.sim_set == "SB28":
-                self.fname = "/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/CosmoAstroSeed_IllustrisTNG_L25n256_SB28.txt"
-            else:
-                self.fname = f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/IllustrisTNG/L25n256/{self.sim_set}/CosmoAstroSeed_IllustrisTNG_L25n256_{self.sim_set}.txt"
-            self.sim_method = load_CAMELS_IllustrisTNG
-            self.cosmology = Planck18
+        if self.sim_set == 'SB28':
+            if self.model not in ['IllustrisTNG']:
+                raise ValueError(f'SB28 set not available for {self.model} model')
 
-        # Handle other models
-        elif self.model == "Simba":
-            self.fname = f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/SIMBA/L25n256/{self.sim_set}/CosmoAstroSeed_SIMBA_L25n256_{self.sim_set}.txt"
+        if ((self.sim_set in ['1P']) & self.extended):
+            if self.model not in ['IllustrisTNG', 'Simba']:
+                raise ValueError(f'Extended 1P parameter set not available for {self.model} model')
+
+        if self.model == "Simba":
+            self.fname = (
+                "/disk/xray15/aem2/camels/proj1/"
+                f"{self.sim_set}/CosmoAstroSeed_SIMBA_L25n256_{self.sim_set}.txt"
+            )
             self.sim_method = load_CAMELS_Simba
             self.cosmology = Planck15
         elif self.model == "Astrid":
-            self.fname = f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/Astrid/L25n256/{self.sim_set}/CosmoAstroSeed_Astrid_L25n256_{self.sim_set}.txt"
+            self.fname = (
+                "/disk/xray15/aem2/camels/proj1/"
+                f"{self.sim_set}/CosmoAstroSeed_Astrid_L25n256_{self.sim_set}.txt"
+            )
             self.sim_method = load_CAMELS_Astrid
             self.cosmology = Planck18
+        elif self.model == "IllustrisTNG":
+            self.fname = (
+                "/disk/xray15/aem2/camels/proj1/"
+                f"{self.sim_set}/CosmoAstroSeed_IllustrisTNG_L25n256_{self.sim_set}.txt"
+            )
+            self.sim_method = load_CAMELS_IllustrisTNG
+            self.cosmology = Planck18
         elif self.model == "Swift-EAGLE":
-            self.fname = "/mnt/home/clovell/code/camels_observational_catalogues/CosmoAstroSeed_SwiftEAGLE_L25n256_LH.txt"
+            self.fname = (
+                "/disk/xray15/aem2/camels/proj1/"
+                f"{self.sim_set}/CosmoAstroSeed_SwiftEAGLE_L25n256_{self.sim_set}.txt"
+            )
             self.sim_method = load_CAMELS_SwiftEAGLE_subfind
             self.cosmology = Planck18
         elif self.model == "Arbitrary":
@@ -51,32 +118,93 @@ class camels:
             self.sim_method = None
             self.cosmology = None
         else:
-            raise ValueError(f"Model {self.model} not recognised")
-
+            raise ValueError("`sim` not recognised")
+        
         self.LH = np.arange(1000)
 
-        # Load parameters
         if self.fname is not None:
-            try:
-                self.params = pd.read_csv(self.fname, delim_whitespace=True)
-            except Exception as e:
-                print(f"Error loading parameters from {self.fname}: {e}")
-                raise
+            self.params = pd.read_table(self.fname, delim_whitespace=True)
 
-        # Initialize other attributes
         self.define_sims()
         self.define_param_labels()
-        self.initialize_snapshots()
 
-    def initialize_snapshots(self):
-        """Initialize snapshot and redshift information"""
-        self.snaps = np.array([f"{i:03d}" for i in range(14, 91, 2)])
-        self.redshifts = np.array([
-            6.01, 5.00, 4.01, 3.49, 3.01, 2.80, 2.63, 2.46, 2.30, 2.15,
-            2.00, 1.86, 1.73, 1.60, 1.48, 1.37, 1.26, 1.14, 1.05, 0.95,
-            0.86, 0.77, 0.69, 0.61, 0.54, 0.47, 0.40, 0.34, 0.27, 0.21,
-            0.15, 0.10, 0.05, 0.00
-        ])
+        self.snaps = np.array(
+            [
+                "014",
+                "018",
+                "024",
+                "028",
+                "032",
+                "034",
+                "036",
+                "038",
+                "040",
+                "042",
+                "044",
+                "046",
+                "048",
+                "050",
+                "052",
+                "054",
+                "056",
+                "058",
+                "060",
+                "062",
+                "064",
+                "066",
+                "068",
+                "070",
+                "072",
+                "074",
+                "076",
+                "078",
+                "080",
+                "082",
+                "084",
+                "086",
+                "088",
+                "090",
+            ]
+        )
+
+        self.redshifts = np.array(
+            [
+                6.01,
+                5.00,
+                4.01,
+                3.49,
+                3.01,
+                2.80,
+                2.63,
+                2.46,
+                2.30,
+                2.15,
+                2.00,
+                1.86,
+                1.73,
+                1.60,
+                1.48,
+                1.37,
+                1.26,
+                1.14,
+                1.05,
+                0.95,
+                0.86,
+                0.77,
+                0.69,
+                0.61,
+                0.54,
+                0.47,
+                0.40,
+                0.34,
+                0.27,
+                0.21,
+                0.15,
+                0.10,
+                0.05,
+                0.00,
+            ]
+        )
 
     def define_sims(self):
         sim_names = []
@@ -104,8 +232,18 @@ class camels:
                 ]
 
                 sim_names += [x for xs in extra_1p_sims for x in xs]
+            
+            if self.dust:
+                extra_1p_sims = [
+                    [
+                        f'1P_p{k}_{j}' for j in ['2', '1', 'n1', 'n2']
+                    ] for k in range(29, 35)
+                ]
+                
+                sim_names += [x for xs in extra_1p_sims for x in xs]
     
         self.sim_names = sim_names
+        
 
     def define_param_labels(self):
         if self.sim_set in ['CV', '1P', 'LH']:
@@ -204,26 +342,35 @@ class camels:
         else:
             _model = self.model
 
+        print(f"/mnt/ceph/users/camels/FOF_Subfind/{_model}/L25n256/{self.sim_set}/{sim}")
+
         gals = self.sim_method(
             (
-                f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/{_model}/"
+                f"/mnt/ceph/users/camels/Sims/{_model}/"
                 f"L25n256/{self.sim_set}/{sim}"
             ),
             snap_name=f"snapshot_{snap}.hdf5",
             group_name=f"groups_{snap}.hdf5",
             group_dir=(
-                f"/mnt/ceph/users/camels/PUBLIC_RELEASE/FOF_Subfind/{_model}/"
+                f"/mnt/ceph/users/camels/FOF_Subfind/{_model}/"
                 f"L25n256/{self.sim_set}/{sim}"
             ),
             num_threads=nthreads,
         )
-
+        
         # Filter by stellar mass
         mstar = np.array([np.sum(_g.stars.current_masses) for _g in gals])
         mstar[mstar <= 0.0] = 1
         mstar = np.log10(mstar)
-        mask = np.where(mstar > mstar_lim)[0]  # < 10 star particles...
+        mask = np.where(mstar > mstar_lim)[0]
         gals = [g for i, g in enumerate(gals) if i in mask]
+
+        # Swift-EAGLE does some prefiltering by particle number.
+        # The originasl index is stored on the name attribute.
+        # Need to make sure masks line up.
+        if self.model == 'Swift-EAGLE':
+            new_mask = np.array([g.name for g in gals])
+            mask = new_mask[mask]
 
         return gals, mask
 
@@ -361,7 +508,3 @@ class camels:
         )  # Poisson errors
 
         return phi, phi_sigma, hist
-    
-
-import numpy as np
-

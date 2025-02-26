@@ -14,14 +14,86 @@ from unyt import unyt_quantity, Msun
 from synthesizer.conversions import lnu_to_absolute_mag, absolute_mag_to_lnu
 from camels import camels
 
-def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams/"):
-    """Get list of available snapshots from the HDF5 file."""
-    available_snaps = set()
-    with h5py.File(f"{photo_dir}/alice_galex_LH.h5", "r") as hf:
-        # Get first simulation to check available snaps
-        first_sim = list(hf.keys())[0]
-        available_snaps = {k.split('_')[1] for k in hf[first_sim].keys() if k.startswith('snap_')}
-    return sorted(list(available_snaps))
+# def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams"):
+#     """Get list of available snapshots from the HDF5 file."""
+#     available_snaps = set()
+#     with h5py.File(f"{photo_dir}/alice_galex_LH.h5", "r") as hf:
+#         # Get first simulation to check available snaps
+#         first_sim = list(hf.keys())[0]
+#         available_snaps = {k.split('_')[1] for k in hf[first_sim].keys() if k.startswith('snap_')}
+#     return sorted(list(available_snaps))
+
+
+def get_safe_name(name, filter_system_only=False):
+    """
+    Convert string to path-safe version and/or extract filter system.
+    
+    Args:
+        name: String to process (e.g., "GALEX FUV" or "UV1500")
+        filter_system_only: If True, returns only the filter system (e.g., "GALEX" or "UV")
+    
+    Returns:
+        Processed string (e.g., "GALEX_FUV" or "GALEX")
+    """
+    # Replace spaces with underscores
+    safe_name = name.replace(' ', '_')
+    
+    # If we only want the filter system, return the first part
+    if filter_system_only:
+        return safe_name.split('_')[0]
+    
+    return safe_name
+    
+def get_colour_dir_name(band1, band2):
+    """
+    Create a standardized directory name for colour plots.
+    Examples:
+        ("GALEX FUV", "GALEX NUV") -> "GALEX_FUV-NUV"
+        ("UVM2", "SUSS") -> "UVM2-SUSS"
+    """
+    # Extract the relevant parts of the filter names
+    if ' ' in band1:
+        system1, filter1 = band1.split(' ', 1)
+    else:
+        system1, filter1 = band1, band1
+
+    if ' ' in band2:
+        system2, filter2 = band2.split(' ', 1)
+    else:
+        system2, filter2 = band2, band2
+        
+    # If both filters are from the same system, use shortened version
+    if system1 == system2:
+        return f"{get_safe_name(system1)}_{filter1}-{filter2}"
+    else:
+        return f"{get_safe_name(band1)}-{get_safe_name(band2)}"
+
+
+   
+def get_magnitude_mask(photo, filters, mag_limits=None):
+    """
+    Create a magnitude mask based on provided limits.
+    
+    Args:
+        photo (dict): Photometry data dictionary
+        filters (list): List of filters to check
+        mag_limits (dict): Dictionary of magnitude limits for each filter
+    
+    Returns:
+        numpy.ndarray: Boolean mask array, or None if no limits provided
+    """
+    if not mag_limits:
+        return None
+        
+    # Start with all True
+    combined_mask = np.ones(len(photo[filters[0]]), dtype=bool)
+    
+    # Apply limits for each filter
+    for band in filters:
+        if band in mag_limits:
+            combined_mask &= (photo[band] < mag_limits[band])
+            
+    return combined_mask
 
 
 def calc_df(_x, volume, massBinLimits):
@@ -94,35 +166,40 @@ def get_theta(
 
 #     return photo
 
+
+
+
 def get_photometry(
     sim_name="LH_0",
     spec_type="attenuated",
-    snap=None,  # Made this None by default
+    snap="090",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/6pams/",
+    photo_dir=(
+        "/mnt/home/clovell/code/" "camels_observational_catalogues/data/"
+    ),
     filters=[
+        "SLOAN/SDSS.u",
+        "SLOAN/SDSS.g",
+        "SLOAN/SDSS.r",
+        "SLOAN/SDSS.i",
+        "SLOAN/SDSS.z",
         "GALEX FUV",
         "GALEX NUV",
     ],
 ):
-    if snap is None:
-        # Use first available snapshot if none specified
-        snap = get_available_snapshots(photo_dir)[0]
-    
-    # Rest of function stays the same
-    photo_file = f"{photo_dir}/alice_galex_LH.h5"
+    photo_file = f"{photo_dir}/{model}_{sim_name}_photometry.hdf5"
     photo = {}
     with h5py.File(photo_file, "r") as hf:
         for filt in filters:
-            # Updated path to match your file structure
             photo[filt] = hf[
-                f"{sim_name}/snap_{snap}/{sps}/photometry/luminosity/{spec_type}/{filt}"
+                f"snap_{snap}/{sps}/photometry/luminosity/{spec_type}/{filt}"
             ][:]
             photo[filt] *= unyt_quantity.from_string("1 erg/s/Hz")
             photo[filt] = lnu_to_absolute_mag(photo[filt])
 
     return photo
+
 
 
 def get_luminosity_function(
@@ -311,7 +388,8 @@ def get_x(
     luminosity_functions=True,
     colours=True,
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/6pams/",
+    photo_dir="/home/jovyan/Data/Photometry",
+    # photo_dir="/disk/xray15/aem2/data/6pams",
     n_bins_lf=13,
     n_bins_colour=13,
 ):

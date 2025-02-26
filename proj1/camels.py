@@ -7,7 +7,8 @@ from unyt import Myr
 from synthesizer.emission_models import EmissionModel, IncidentEmission
 from synthesizer.filters import Filter, FilterCollection
 from synthesizer.emission_models.attenuation import ParametricLi08
-from synthesizer.filters import Filter, FilterCollection
+# from synthesizer.filters import Filter, FilterCollection
+from synthesizer.instruments import Filter, FilterCollection
 from synthesizer.load_data.load_camels import (
     load_CAMELS_Simba,
     load_CAMELS_IllustrisTNG,
