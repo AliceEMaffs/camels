@@ -14,14 +14,14 @@ from unyt import unyt_quantity, Msun
 from synthesizer.conversions import lnu_to_absolute_mag, absolute_mag_to_lnu
 from camels import camels
 
-# def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams"):
-#     """Get list of available snapshots from the HDF5 file."""
-#     available_snaps = set()
-#     with h5py.File(f"{photo_dir}/alice_galex_LH.h5", "r") as hf:
-#         # Get first simulation to check available snaps
-#         first_sim = list(hf.keys())[0]
-#         available_snaps = {k.split('_')[1] for k in hf[first_sim].keys() if k.startswith('snap_')}
-#     return sorted(list(available_snaps))
+def get_available_snapshots(photo_dir="/home/jovyan/Data/Photometry", model='Swift-EAGLE', sim_name='1P'): #"/disk/xray15/aem2/data/6pams"):
+    """Get list of available snapshots from the HDF5 file."""
+    available_snaps = set()
+    with h5py.File(f"{photo_dir}/{model}_{sim_name}_photometry.hdf5", "r") as hf:
+        # Get first simulation to check available snaps
+        first_sim = list(hf.keys())[0]
+        available_snaps = {k.split('_')[1] for k in hf[first_sim].keys() if k.startswith('snap_')}
+    return sorted(list(available_snaps))
 
 
 def get_safe_name(name, filter_system_only=False):
@@ -176,7 +176,8 @@ def get_photometry(
     sps="BC03",
     model="IllustrisTNG",
     photo_dir=(
-        "/mnt/home/clovell/code/" "camels_observational_catalogues/data/"
+        "/home/jovyan/Data/Photometry"
+        # "/mnt/home/clovell/code/" "camels_observational_catalogues/data/"
     ),
     filters=[
         "SLOAN/SDSS.u",
