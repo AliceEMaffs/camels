@@ -15,7 +15,7 @@ from sklearn.preprocessing import Normalizer
 import joblib
 
 from priors import initialise_priors
-from setup_params import get_theta_x
+from camels.proj1.setup_params_LH import get_theta_x
 from camels import camels
 
 
