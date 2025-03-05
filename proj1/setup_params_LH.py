@@ -14,7 +14,7 @@ from unyt import unyt_quantity, Msun
 from synthesizer.conversions import lnu_to_absolute_mag, absolute_mag_to_lnu
 from camels import camels
 
-def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams"):
+def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams/"):
     """Get list of available snapshots from the HDF5 file."""
     available_snaps = set()
     with h5py.File(f"{photo_dir}/alice_galex_LH.h5", "r") as hf:
@@ -22,78 +22,6 @@ def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams"):
         first_sim = list(hf.keys())[0]
         available_snaps = {k.split('_')[1] for k in hf[first_sim].keys() if k.startswith('snap_')}
     return sorted(list(available_snaps))
-
-
-def get_safe_name(name, filter_system_only=False):
-    """
-    Convert string to path-safe version and/or extract filter system.
-    
-    Args:
-        name: String to process (e.g., "GALEX FUV" or "UV1500")
-        filter_system_only: If True, returns only the filter system (e.g., "GALEX" or "UV")
-    
-    Returns:
-        Processed string (e.g., "GALEX_FUV" or "GALEX")
-    """
-    # Replace spaces with underscores
-    safe_name = name.replace(' ', '_')
-    
-    # If we only want the filter system, return the first part
-    if filter_system_only:
-        return safe_name.split('_')[0]
-    
-    return safe_name
-    
-def get_colour_dir_name(band1, band2):
-    """
-    Create a standardized directory name for colour plots.
-    Examples:
-        ("GALEX FUV", "GALEX NUV") -> "GALEX_FUV-NUV"
-        ("UVM2", "SUSS") -> "UVM2-SUSS"
-    """
-    # Extract the relevant parts of the filter names
-    if ' ' in band1:
-        system1, filter1 = band1.split(' ', 1)
-    else:
-        system1, filter1 = band1, band1
-
-    if ' ' in band2:
-        system2, filter2 = band2.split(' ', 1)
-    else:
-        system2, filter2 = band2, band2
-        
-    # If both filters are from the same system, use shortened version
-    if system1 == system2:
-        return f"{get_safe_name(system1)}_{filter1}-{filter2}"
-    else:
-        return f"{get_safe_name(band1)}-{get_safe_name(band2)}"
-
-
-   
-def get_magnitude_mask(photo, filters, mag_limits=None):
-    """
-    Create a magnitude mask based on provided limits.
-    
-    Args:
-        photo (dict): Photometry data dictionary
-        filters (list): List of filters to check
-        mag_limits (dict): Dictionary of magnitude limits for each filter
-    
-    Returns:
-        numpy.ndarray: Boolean mask array, or None if no limits provided
-    """
-    if not mag_limits:
-        return None
-        
-    # Start with all True
-    combined_mask = np.ones(len(photo[filters[0]]), dtype=bool)
-    
-    # Apply limits for each filter
-    for band in filters:
-        if band in mag_limits:
-            combined_mask &= (photo[band] < mag_limits[band])
-            
-    return combined_mask
 
 
 def calc_df(_x, volume, massBinLimits):
@@ -222,7 +150,7 @@ def get_colour_distribution(
     filtB,
     lo_lim,
     hi_lim,
-    n_bins=10,
+    n_bins=13,
     mask=None,
 ):
     if mask is None:
@@ -383,7 +311,7 @@ def get_x(
     luminosity_functions=True,
     colours=True,
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/6pams",
+    photo_dir="/disk/xray15/aem2/data/6pams/",
     n_bins_lf=13,
     n_bins_colour=13,
 ):
@@ -559,6 +487,40 @@ def plot_uvlf(x_array, n_bins=13):
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# # made fix
+# def plot_colour(x_array, n_bins=13, n_sims_to_plot=5):
+#     # Create color bins
+#     color_bins = np.linspace(-0.5, 3.5, n_bins)
+#     color_centers = (color_bins[:-1] + color_bins[1:]) / 2
+    
+#     # Create figure
+#     fig, ax = plt.subplots(figsize=(10, 6))
+    
+#     # Plot individual simulation distributions
+#     random_indices = np.random.choice(len(x_array), size=n_sims_to_plot, replace=False)
+#     for idx in random_indices:
+#         # IMPORTANT FIX: Pass the entire row for this simulation, don't use index slicing
+#         # The x_array is already JUST the color data, no need for further slicing
+#         ax.plot(color_centers, x_array[idx], alpha=0.3, color='gray', linewidth=1)
+    
+#     # Plot mean distribution - same fix here
+#     mean_dist = np.mean(x_array, axis=0)
+#     ax.plot(color_centers, mean_dist, 'b-', linewidth=2, label='Mean Distribution')
+#     # Add labels and styling
+#     ax.set_xlabel('FUV - NUV [mag]')
+#     ax.set_ylabel('Normalized Count')
+#     ax.set_title('FUV-NUV Color Distribution')
+#     ax.grid(True, alpha=0.3)
+#     ax.legend()
+    
+#     # Print ranges for verification
+#     print(f"Color range: [{color_bins[0]:.1f}, {color_bins[-1]:.1f}]")
+#     print(f"Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
+    
+#     return fig
+
+
 def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 and taking the median
     """
     Plot FUV-NUV color distributions for multiple simulations.
@@ -595,6 +557,10 @@ def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 an
     mean_dist = np.mean(x_array[:, -n_bins+1:], axis=0)
     ax.plot(color_centers, mean_dist, 'b-', linewidth=2, label='Mean Distribution')
     
+    # max and min
+    max_colo = np.max(x_array[:, -n_bins+1:], axis=0)
+    min_colo = np.min(x_array[:, -n_bins+1:], axis=0)
+
     # Add labels and styling
     ax.set_xlabel('FUV - NUV [mag]')
     ax.set_ylabel('Normalized Count')
@@ -604,7 +570,9 @@ def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 an
     
     # Print ranges for verification
     print(f"Color range: [{color_bins[0]:.1f}, {color_bins[-1]:.1f}]")
-    print(f"Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
+    print(f"Mean Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
+    print(f"MAX colour range:", max_colo.max())
+    print(f"MIN colour range", min_colo.min())
     
     return fig
 
