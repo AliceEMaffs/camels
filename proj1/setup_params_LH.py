@@ -14,7 +14,7 @@ from unyt import unyt_quantity, Msun
 from synthesizer.conversions import lnu_to_absolute_mag, absolute_mag_to_lnu
 from camels import camels
 
-def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams/"):
+def get_available_snapshots(photo_dir="/disk/xray15/aem2/data/6pams/LH/IllustrisTNG/photometry"):
     """Get list of available snapshots from the HDF5 file."""
     available_snaps = set()
     with h5py.File(f"{photo_dir}/alice_galex_LH.h5", "r") as hf:
@@ -100,7 +100,7 @@ def get_photometry(
     snap=None,  # Made this None by default
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/6pams/",
+    photo_dir="/disk/xray15/aem2/data/6pams/LH/IllustrisTNG/photometry",
     filters=[
         "GALEX FUV",
         "GALEX NUV",
@@ -302,8 +302,6 @@ def get_mass_to_light(
 
 #     return x
 
-
-
 def get_x(
     spec_type="attenuated",
     snap=None,
@@ -311,7 +309,7 @@ def get_x(
     luminosity_functions=True,
     colours=True,
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/6pams/",
+    photo_dir="/disk/xray15/aem2/data/6pams/LH/IllustrisTNG/photometry",
     n_bins_lf=13,
     n_bins_colour=13,
 ):
@@ -557,13 +555,10 @@ def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 an
     mean_dist = np.mean(x_array[:, -n_bins+1:], axis=0)
     ax.plot(color_centers, mean_dist, 'b-', linewidth=2, label='Mean Distribution')
     
-<<<<<<< HEAD
     # max and min
     max_colo = np.max(x_array[:, -n_bins+1:], axis=0)
     min_colo = np.min(x_array[:, -n_bins+1:], axis=0)
 
-=======
->>>>>>> 690783e54 (edited scaling to just scale UVLF data between 0-1 and keep colours as is, as already between 0-1. Edited LH sbi test script for test metrics to see how well training is generalising with test set.)
     # Add labels and styling
     ax.set_xlabel('FUV - NUV [mag]')
     ax.set_ylabel('Normalized Count')
@@ -573,13 +568,9 @@ def plot_colour(x_array, n_bins=13, n_sims_to_plot=5): # taking a sample of 5 an
     
     # Print ranges for verification
     print(f"Color range: [{color_bins[0]:.1f}, {color_bins[-1]:.1f}]")
-<<<<<<< HEAD
     print(f"Mean Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
     print(f"MAX colour range:", max_colo.max())
     print(f"MIN colour range", min_colo.min())
-=======
-    print(f"Distribution range: [{mean_dist.min():.2f}, {mean_dist.max():.2f}]")
->>>>>>> 690783e54 (edited scaling to just scale UVLF data between 0-1 and keep colours as is, as already between 0-1. Edited LH sbi test script for test metrics to see how well training is generalising with test set.)
     
     return fig
 
