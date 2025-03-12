@@ -30,7 +30,7 @@ def get_photometry(
     snap="090",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/1P/photometry"),
+    photo_dir=("/disk/xray15/aem2/data/28pams/1P/IllustrisTNG/photometry"),
     filters=[
         "SLOAN/SDSS.u",
         "SLOAN/SDSS.g",

@@ -27,7 +27,7 @@ class camels:
         # Handle IllustrisTNG cases
         if self.model == "IllustrisTNG":
             if self.sim_set == "SB28":
-                self.fname = "/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/CosmoAstroSeed_IllustrisTNG_L25n256_SB28.txt"
+                self.fname = "/disk/xray15/aem2/data/28pams/CosmoAstroSeed_IllustrisTNG_L25n256_SB28.txt"
             else:
                 self.fname = f"/mnt/ceph/users/camels/PUBLIC_RELEASE/Sims/IllustrisTNG/L25n256/{self.sim_set}/CosmoAstroSeed_IllustrisTNG_L25n256_{self.sim_set}.txt"
             self.sim_method = load_CAMELS_IllustrisTNG

@@ -3,10 +3,10 @@
 import os
 
 # Base directories
-base_dir = "/disk/xray15/aem2/data/28pams/IllustrisTNG"
+base_dir = "/disk/xray15/aem2/data/28pams/SB/IllustrisTNG"# "/disk/xray15/aem2/data/28pams/IllustrisTNG"
 input_dir = os.path.join(base_dir, "photometry")
-plots_dir_SB = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/SB"
-plots_dir_1P = "/disk/xray15/aem2/plots/28pams/IllustrisTNG/1P"
+plots_dir_SB = "/disk/xray15/aem2/plots/28pams/SB/IllustrisTNG"#"/disk/xray15/aem2/plots/28pams/IllustrisTNG/SB"
+plots_dir_1P = "/disk/xray15/aem2/plots/28pams/1P" #"/disk/xray15/aem2/plots/28pams/IllustrisTNG/1P"
 param_info_file = "/disk/xray15/aem2/data/28pams/Info_IllustrisTNG_L25n256_28params.txt"
 
 # Redshift mappings

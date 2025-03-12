@@ -29,7 +29,7 @@ def get_photometry(
     snap="090",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir=("/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry"),
+    photo_dir=("/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/photometry"),
     filters=[
         "SLOAN/SDSS.u",
         "SLOAN/SDSS.g",
@@ -115,7 +115,7 @@ def create_test_mask(n_sims=2048, test_fraction=0.1, random_seed=42):
     print(f"Test fraction: {test_mask.sum() / n_sims:.3f}")
     
     # Save the mask
-    save_path = "/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/test/test_mask_SB28.txt"
+    save_path = "/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/test_mask_SB28.txt"
     np.savetxt(save_path, test_mask.astype(int), fmt='%i')
     
     return test_mask
@@ -185,7 +185,7 @@ def get_photometry_SB(
     snap="044",
     sps="BC03",
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry",
+    photo_dir="/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/photometry",
     filters=["GALEX FUV", "GALEX NUV"],
 ):
     photo = {}
@@ -242,7 +242,7 @@ def get_x_SB(
     luminosity_functions=True,
     colours=True,
     model="IllustrisTNG",
-    photo_dir="/disk/xray15/aem2/data/28pams/IllustrisTNG/SB/photometry",
+    photo_dir="/disk/xray15/aem2/data/28pams/SB/IllustrisTNG/photometry",
     n_bins_lf=13,
     n_bins_colour=13,
     uvlf_limits=(-24, -14),  # Default values from your config

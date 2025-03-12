@@ -4,7 +4,7 @@ import numpy as np
 from torch.distributions import Uniform, TransformedDistribution, ExpTransform
 from sbi.utils.user_input_checks import process_prior
 
-# parameters defined here: /disk/xray15/aem2/data/28pams/IllustrisTNG/SB/CosmoAstroSeed_IllustrisTNG_L25n256_SB28.txt
+# parameters defined here: /disk/xray15/aem2/data/28pams/CosmoAstroSeed_IllustrisTNG_L25n256_SB28.txt
 
 ''' priors from looking at their shapes:
 
