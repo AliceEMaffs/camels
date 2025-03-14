@@ -123,14 +123,14 @@ test_mask = np.loadtxt("/disk/xray15/aem2/data/6pams/test_mask.txt", dtype=bool)
 
 # start with 2 pam grid options for testing:
 param_grid = {
-    "hidden_features": [60, 70],
-    "num_transforms": [4, 5],
-    "num_nets": [2, 3],
-    "training_batch_size": [4],#, 16],
-    "learning_rate": [5e-5],#, 1e-5],
-    "stop_after_epochs": [15],#, 20],
-    "max_num_epochs": [100],#, 150],
-    "clip_max_norm": [1, 0.5]
+    "hidden_features": [65, 70, 75],         # 3 values centered around best
+    "num_transforms": [3, 4, 5],             # 3 values centered around best
+    "num_nets": [3],                         # Fix at best value
+    "training_batch_size": [4, 5],           # Add one more value
+    "learning_rate": [0.0004, 0.0005, 0.0006], # 3 values around best
+    "stop_after_epochs": [20],               # Fix at current value
+    "max_num_epochs": [100],                 # Fix at current value
+    "clip_max_norm": [1.7, 1.8, 1.9]         # 3 values tightly around best
 }
 
 # Generate all combinations of parameters
