@@ -2,7 +2,7 @@ import os
 # Parameters
 #uvlf_limits = (-24, -16)
 uvlf_limits = (-25, -14)
-n_bins_lf = 15 # 12 bins!
+n_bins_lf = 13# 12 bins!
 colour_limits = (-0.5, 3.5)
 n_bins_colour = 13
 
@@ -43,7 +43,8 @@ def get_config(dataset="CV", simulation="IllustrisTNG"):
     }
 
     # Define paths and limits for the simulation-specific configurations
-    param_info_file = f"Data/Sims/{simulation}/{dataset}/CosmoAstroSeed_{simulation}_L25n256_{dataset}.txt"
+    param_info_file =f"/home/jovyan/camels/param_info_files/CosmoAstroSeed_{simulation}_L25n256_{dataset}.txt"
+
     redshift_values = {
         '044': {'redshift': 2.00, 'label': 'z2.0'},
         '052': {'redshift': 1.48, 'label': 'z1.5'},
